@@ -2,6 +2,8 @@ import { useState } from "react";
 import ModelViewer from "./components/ModelViewer";
 import PLYViewer from "./ply/PlyViewer";
 import Home, { type ExampleId } from "./components/Home";
+import LodViewer from "./lod/LodViewer";
+import SparkViewer from "./spark/SparkViewer";
 
 function App() {
   const [current, setCurrent] = useState<ExampleId | null>(null);
@@ -37,6 +39,8 @@ function App() {
 
       {current === "model" && <ModelViewer />}
       {current === "ply" && <PLYViewer />}
+      {current === "lod" && <LodViewer />}
+      {current === "spark" && <SparkViewer />}
     </div>
   );
 }

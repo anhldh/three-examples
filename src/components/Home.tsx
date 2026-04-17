@@ -1,6 +1,4 @@
-import type { FC } from "react";
-
-export type ExampleId = "model" | "ply";
+export type ExampleId = "model" | "ply" | "lod" | "spark";
 
 interface Example {
   id: ExampleId;
@@ -30,13 +28,29 @@ const EXAMPLES: Example[] = [
     tags: ["three.js", "point cloud", "mesh", "drag & drop"],
     accent: "linear-gradient(135deg, #ff6b9d, #ff3b5d)",
   },
+  {
+    id: "lod",
+    title: "GLB LOD",
+    subtitle: "LOD",
+    description: "Bộ hiển thị gltf với nhiều mức độ chi tiết (LOD).",
+    tags: ["three.js", "gltf", "lod"],
+    accent: "linear-gradient(135deg, #6a7429, #7b9a1c)",
+  },
+  {
+    id: "spark",
+    title: "Spark Viewer",
+    subtitle: "Spark",
+    description: "Bộ hiển thị gltf với nhiều mức độ chi tiết (LOD).",
+    tags: ["three.js", "gltf", "lod"],
+    accent: "linear-gradient(135deg, #19c64a, #19c64a)",
+  },
 ];
 
 interface HomeProps {
   onSelect: (id: ExampleId) => void;
 }
 
-const Home: FC<HomeProps> = ({ onSelect }) => {
+const Home = ({ onSelect }: HomeProps) => {
   return (
     <div
       style={{
@@ -48,10 +62,12 @@ const Home: FC<HomeProps> = ({ onSelect }) => {
         fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
         padding: "64px 32px",
         boxSizing: "border-box",
+        overflowX: "hidden", // Tránh lỗi cuộn ngang
       }}
     >
-      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <header style={{ marginBottom: 48 }}>
+      {/* SỬA 1: Nới rộng maxWidth lên 1600 để hiển thị được nhiều item hơn trên màn hình to */}
+      <div style={{ maxWidth: 1600, width: "100%", margin: "0 auto" }}>
+        <header style={{ marginBottom: 48, textAlign: "center" }}>
           <div
             style={{
               fontSize: 12,
@@ -77,7 +93,7 @@ const Home: FC<HomeProps> = ({ onSelect }) => {
             style={{
               fontSize: 14,
               color: "#777799",
-              marginTop: 12,
+              margin: "12px auto 0",
               maxWidth: 620,
               lineHeight: 1.6,
             }}
@@ -99,6 +115,10 @@ const Home: FC<HomeProps> = ({ onSelect }) => {
               key={ex.id}
               onClick={() => onSelect(ex.id)}
               style={{
+                // SỬA 2: Ép button thành dạng flex-column & height 100%
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
                 textAlign: "left",
                 background: "rgba(255,255,255,0.03)",
                 border: "1px solid rgba(255,255,255,0.08)",
@@ -122,11 +142,13 @@ const Home: FC<HomeProps> = ({ onSelect }) => {
               <div
                 style={{
                   height: 140,
+                  width: "100%",
                   background: ex.accent,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   position: "relative",
+                  flexShrink: 0, // Đảm bảo phần màu không bị ép lùn đi
                 }}
               >
                 <span
@@ -154,7 +176,17 @@ const Home: FC<HomeProps> = ({ onSelect }) => {
                 </div>
               </div>
 
-              <div style={{ padding: "18px 20px 20px" }}>
+              {/* SỬA 3: Cho content flexGrow: 1 để tự chiếm khoảng trống, đẩy các tags xuống sát đáy */}
+              <div
+                style={{
+                  padding: "18px 20px 20px",
+                  display: "flex",
+                  flexDirection: "column",
+                  flexGrow: 1,
+                  width: "100%",
+                  boxSizing: "border-box",
+                }}
+              >
                 <div
                   style={{
                     fontSize: 18,
@@ -171,6 +203,7 @@ const Home: FC<HomeProps> = ({ onSelect }) => {
                     color: "#888",
                     lineHeight: 1.6,
                     marginBottom: 14,
+                    flexGrow: 1, // Điểm mấu chốt để ép các card có chiều cao bằng nhau
                   }}
                 >
                   {ex.description}
