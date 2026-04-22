@@ -4,6 +4,8 @@ import PLYViewer from "./ply/PlyViewer";
 import Home, { type ExampleId } from "./components/Home";
 import LodViewer from "./lod/LodViewer";
 import SparkViewer from "./spark/SparkViewer";
+import { GlbViewer } from "./GLTFAnimationPointerExtension/GlbViewer";
+import { GLTFAnimationPointerExtension } from "./GLTFAnimationPointerExtension/GtlfAnimationExt";
 
 function App() {
   const [current, setCurrent] = useState<ExampleId | null>(null);
@@ -41,6 +43,15 @@ function App() {
       {current === "ply" && <PLYViewer />}
       {current === "lod" && <LodViewer />}
       {current === "spark" && <SparkViewer />}
+      {current === "animation-pointer" && (
+        <GlbViewer
+          extendLoader={(loader) => {
+            loader.register(
+              (parser) => new GLTFAnimationPointerExtension(parser),
+            );
+          }}
+        />
+      )}
     </div>
   );
 }

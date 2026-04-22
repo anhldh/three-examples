@@ -1,4 +1,4 @@
-export type ExampleId = "model" | "ply" | "lod" | "spark";
+export type ExampleId = "model" | "ply" | "lod" | "spark" | "animation-pointer";
 
 interface Example {
   id: ExampleId;
@@ -40,9 +40,17 @@ const EXAMPLES: Example[] = [
     id: "spark",
     title: "Spark Viewer",
     subtitle: "Spark",
-    description: "Bộ hiển thị gltf với nhiều mức độ chi tiết (LOD).",
-    tags: ["three.js", "gltf", "lod"],
+    description: "Bọ hiển thị gaussian splatting, ply.",
+    tags: ["three.js", "gaussian-splatting"],
     accent: "linear-gradient(135deg, #19c64a, #19c64a)",
+  },
+  {
+    id: "animation-pointer",
+    title: "Animation Pointer",
+    subtitle: "Animation Pointer",
+    description: "Xử lý Animation Pointer",
+    tags: ["three.js", "gltf", "animation-pointer"],
+    accent: "linear-gradient(135deg, #0b1072ff, #2210e7ff)",
   },
 ];
 
