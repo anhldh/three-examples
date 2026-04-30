@@ -6,6 +6,7 @@ import LodViewer from "./lod/LodViewer";
 import SparkViewer from "./spark/SparkViewer";
 import { GlbViewer } from "./GLTFAnimationPointerExtension/GlbViewer";
 import { GLTFAnimationPointerExtension } from "./GLTFAnimationPointerExtension/GtlfAnimationExt";
+import ModelViewerGoogle from "./model-viewer/ModelViewer";
 
 function App() {
   const [current, setCurrent] = useState<ExampleId | null>(null);
@@ -52,6 +53,7 @@ function App() {
           }}
         />
       )}
+      {current === "model-viewer" && <ModelViewerGoogle />}
     </div>
   );
 }

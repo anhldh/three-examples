@@ -1,4 +1,10 @@
-export type ExampleId = "model" | "ply" | "lod" | "spark" | "animation-pointer";
+export type ExampleId =
+  | "model"
+  | "ply"
+  | "lod"
+  | "spark"
+  | "animation-pointer"
+  | "model-viewer";
 
 interface Example {
   id: ExampleId;
@@ -51,6 +57,15 @@ const EXAMPLES: Example[] = [
     description: "Xử lý Animation Pointer",
     tags: ["three.js", "gltf", "animation-pointer"],
     accent: "linear-gradient(135deg, #0b1072ff, #2210e7ff)",
+  },
+  {
+    id: "model-viewer",
+    title: "Model Viewer",
+    subtitle: "Model Viewer",
+    description:
+      "Hiển thị glb với nhiều mức độ chi tiết (LOD) cho model-viewer (google).",
+    tags: ["glb", "lod", "model-viewer"],
+    accent: "linear-gradient(135deg, #6a7429, #7b9a1c)",
   },
 ];
 
