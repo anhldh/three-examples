@@ -221,6 +221,17 @@ export class GLTFAnimationPointerExtension {
     else if (path.startsWith("/extensions/KHR_lights_punctual/lights/"))
       type = ANIMATION_TARGET_TYPE.light;
     else if (path.startsWith("/cameras/")) type = ANIMATION_TARGET_TYPE.camera;
+    else if (path.startsWith("/nodes/")) type = ANIMATION_TARGET_TYPE.node;
+    else {
+      // Unrecognized pointer target (e.g. /scenes/, /skins/, /textures/,
+      // or other extensions we don't support). Skip silently.
+      if (_animationPointerDebug)
+        console.warn(
+          KHR_ANIMATION_POINTER + ": unsupported pointer target",
+          path,
+        );
+      return;
+    }
 
     targetId = this._tryResolveTargetId(path, type);
     if (targetId === null || Number.isNaN(targetId)) {
@@ -411,6 +422,23 @@ export class GLTFAnimationPointerExtension {
     if (this.animationPointerResolver?.resolvePath) {
       const resolved = this.animationPointerResolver.resolvePath(path);
       if (resolved !== null) path = resolved;
+    }
+
+    // Guard: if targetProperty was not mapped to a known Three.js property,
+    // skip this channel rather than producing a broken track.
+    if (
+      targetProperty === undefined ||
+      path.includes("undefined") ||
+      path.endsWith("/") // unmapped path ends with the trailing slash
+    ) {
+      if (_animationPointerDebug)
+        console.warn(
+          KHR_ANIMATION_POINTER + ": property not mapped",
+          ext.pointer,
+          "→",
+          path,
+        );
+      return;
     }
 
     target.extensions![KHR_ANIMATION_POINTER]!.pointer = path;
@@ -637,10 +665,60 @@ export class GLTFAnimationPointerExtension {
     const json = this.parser.json;
     const parser = this.parser;
 
+    if (!json.animations || !json.animations[animationIndex]) {
+      console.warn(
+        KHR_ANIMATION_POINTER + ": loadAnimation called for missing animation",
+        animationIndex,
+      );
+      return Promise.resolve(
+        new AnimationClip("animation_" + animationIndex, undefined, []),
+      );
+    }
+
     const animationDef = json.animations[animationIndex];
+
+    // Fast path: if this animation has no KHR_animation_pointer channels,
+    // delegate entirely to Three.js's built-in animation loader by returning
+    // a sentinel that signals "extension does not handle this animation".
+    // We do this by checking channels here BEFORE doing any custom work.
+    const hasPointerChannel = animationDef.channels.some(
+      (ch) =>
+        !!ch.target.extensions &&
+        !!ch.target.extensions[KHR_ANIMATION_POINTER] &&
+        ch.target.path === "pointer",
+    );
+
+    if (!hasPointerChannel) {
+      // No pointer channels — let GLTFLoader handle this animation natively.
+      // We need to call the parser's original animation loader. Three.js doesn't
+      // expose it cleanly, but we can use _invokeAll to skip our extension.
+      // Simplest: directly use the internal _loadAnimation if available, else
+      // re-implement minimal logic that won't crash.
+      const originalLoad = (
+        parser as unknown as {
+          _loadAnimation?: (i: number) => Promise<AnimationClip>;
+        }
+      )._loadAnimation;
+      if (typeof originalLoad === "function") {
+        return originalLoad.call(parser, animationIndex);
+      }
+      // No internal hook available — use parser.loadAnimation but guard against
+      // recursion by temporarily blocking our extension. Since we control this,
+      // we just build using _createAnimationTracks directly.
+      return this._loadAnimationWithoutPointer(animationIndex);
+    }
+
     const animationName = animationDef.name
       ? animationDef.name
       : "animation_" + animationIndex;
+
+    if (_animationPointerDebug)
+      console.log(
+        KHR_ANIMATION_POINTER + ": loadAnimation",
+        animationIndex,
+        animationName,
+        animationDef,
+      );
 
     const pendingNodes: Array<Promise<unknown> | null | undefined> = [];
     const pendingInputAccessors: Array<Promise<GLTFAccessor>> = [];
@@ -661,10 +739,22 @@ export class GLTFAnimationPointerExtension {
           ? animationDef.parameters[sampler.output]
           : sampler.output;
 
+      // Detect whether this channel uses KHR_animation_pointer.
+      // - If yes and our extension can't handle it → push undefined (skip channel)
+      //   without falling back to loadAnimationTargetFromChannel, since pointer
+      //   channels typically have target.path = "pointer" and no target.node,
+      //   which would make the fallback crash with `getDependency("node", undefined)`.
+      // - If no (regular animation channel) → use the standard fallback.
+      const isPointerChannel =
+        !!target.extensions &&
+        !!target.extensions[KHR_ANIMATION_POINTER] &&
+        target.path === "pointer";
+
       let nodeDependency: Promise<unknown> | null | undefined =
         this.loadAnimationTargetFromChannelWithAnimationPointer(channel);
-      if (!nodeDependency)
+      if (!nodeDependency && !isPointerChannel) {
         nodeDependency = this.loadAnimationTargetFromChannel(channel);
+      }
 
       pendingNodes.push(nodeDependency);
       pendingInputAccessors.push(
@@ -699,34 +789,167 @@ export class GLTFAnimationPointerExtension {
         const sampler = samplers[i];
         const target = targets[i];
 
-        if (node === undefined) continue;
+        if (node === undefined || node === null) continue;
+        if (!inputAccessor || !outputAccessor) continue;
 
         if ((node as Object3D).updateMatrix) {
           node.updateMatrix();
           node.matrixAutoUpdate = true;
         }
 
-        let createdTracks: KeyframeTrack[] | null =
-          this.createAnimationTracksWithAnimationPointer(
+        // Determine if this is a pointer channel — if so, we must NOT fall back
+        // to Three.js's stock _createAnimationTracks, because it expects a node-
+        // shaped target and a path like "translation"/"rotation"/etc, neither of
+        // which apply to pointer channels.
+        const isPointerChannel =
+          !!target.extensions &&
+          !!target.extensions[KHR_ANIMATION_POINTER] &&
+          target.path === "pointer";
+
+        let createdTracks: KeyframeTrack[] | null = null;
+        try {
+          createdTracks = this.createAnimationTracksWithAnimationPointer(
             node,
             inputAccessor,
             outputAccessor,
             sampler,
             target,
           );
-        if (!createdTracks)
-          createdTracks = parser._createAnimationTracks(
-            node,
-            inputAccessor,
-            outputAccessor,
-            sampler,
+        } catch (err) {
+          console.warn(
+            KHR_ANIMATION_POINTER +
+              ": failed to create pointer track, skipping channel",
+            err,
             target,
           );
+          createdTracks = null;
+        }
+
+        if (!createdTracks && !isPointerChannel) {
+          try {
+            createdTracks = parser._createAnimationTracks(
+              node,
+              inputAccessor,
+              outputAccessor,
+              sampler,
+              target,
+            );
+          } catch (err) {
+            console.warn(
+              KHR_ANIMATION_POINTER +
+                ": fallback track creation failed, skipping channel",
+              err,
+              target,
+            );
+            createdTracks = null;
+          }
+        }
 
         if (createdTracks) {
           for (let k = 0; k < createdTracks.length; k++) {
             tracks.push(createdTracks[k]);
           }
+        }
+      }
+
+      return new AnimationClip(animationName, undefined, tracks);
+    });
+  }
+
+  /**
+   * Fallback loader for animations that contain no KHR_animation_pointer channels.
+   * Replicates Three.js GLTFLoader's animation loading logic without any pointer-
+   * specific handling, so that animations from files that don't use this extension
+   * still work even though we've taken over loadAnimation.
+   */
+  private _loadAnimationWithoutPointer(
+    animationIndex: number,
+  ): Promise<AnimationClip> {
+    const parser = this.parser;
+    const json = parser.json;
+    const animationDef = json.animations[animationIndex];
+    const animationName = animationDef.name
+      ? animationDef.name
+      : "animation_" + animationIndex;
+
+    const pendingNodes: Array<Promise<Object3D | undefined>> = [];
+    const pendingInputAccessors: Array<Promise<GLTFAccessor>> = [];
+    const pendingOutputAccessors: Array<Promise<GLTFAccessor>> = [];
+    const pendingSamplers: GLTFAnimationSampler[] = [];
+    const pendingTargets: GLTFAnimationTarget[] = [];
+
+    for (let i = 0, il = animationDef.channels.length; i < il; i++) {
+      const channel = animationDef.channels[i];
+      const sampler = animationDef.samplers[channel.sampler];
+      const target = channel.target;
+      const input =
+        animationDef.parameters !== undefined
+          ? animationDef.parameters[sampler.input]
+          : sampler.input;
+      const output =
+        animationDef.parameters !== undefined
+          ? animationDef.parameters[sampler.output]
+          : sampler.output;
+
+      if (target.node === undefined) continue; // skip channels with no target
+
+      pendingNodes.push(
+        parser.getDependency("node", target.node) as Promise<
+          Object3D | undefined
+        >,
+      );
+      pendingInputAccessors.push(
+        parser.getDependency("accessor", input) as Promise<GLTFAccessor>,
+      );
+      pendingOutputAccessors.push(
+        parser.getDependency("accessor", output) as Promise<GLTFAccessor>,
+      );
+      pendingSamplers.push(sampler);
+      pendingTargets.push(target);
+    }
+
+    return Promise.all([
+      Promise.all(pendingNodes),
+      Promise.all(pendingInputAccessors),
+      Promise.all(pendingOutputAccessors),
+      Promise.all(pendingSamplers),
+      Promise.all(pendingTargets),
+    ]).then((deps) => {
+      const nodes = deps[0];
+      const inputAccessors = deps[1];
+      const outputAccessors = deps[2];
+      const samplers = deps[3];
+      const targets = deps[4];
+
+      const tracks: KeyframeTrack[] = [];
+
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        if (!node) continue;
+
+        if (node.updateMatrix) {
+          node.updateMatrix();
+          node.matrixAutoUpdate = true;
+        }
+
+        try {
+          const createdTracks = parser._createAnimationTracks(
+            node,
+            inputAccessors[i],
+            outputAccessors[i],
+            samplers[i],
+            targets[i],
+          );
+          if (createdTracks) {
+            for (const t of createdTracks) tracks.push(t);
+          }
+        } catch (err) {
+          console.warn(
+            KHR_ANIMATION_POINTER +
+              ": failed to create track for non-pointer channel",
+            err,
+            targets[i],
+          );
         }
       }
 

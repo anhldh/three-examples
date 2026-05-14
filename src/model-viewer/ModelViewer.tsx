@@ -21,10 +21,11 @@ const ModelViewerGoogle = () => {
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
       <model-viewer
-        src="https://development.imaxhitech.com:9990/models/mobilehomelod/model.glb"
+        src="https://development.imaxhitech.com:9990/models/rPsVVr_M0A9xNNiQC_/lod/file.glb"
         alt="A 3D model"
         auto-rotate
         camera-controls
+        autoplay
         camera-orbit="-29.44deg 90deg 10.67m"
         field-of-view="30deg"
         style={{
