@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useRef, useState } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import {
   OrbitControls,
   Environment,
@@ -11,6 +11,8 @@ import {
 import { type Group } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { PerfMonitor } from "r3f-monitor";
+import { GLTFAnimationPointerExtension } from "./GtlfAnimationExt";
+import { gltfLodLoader } from "gltf-lod-loader";
 
 export interface GlbViewerProps {
   extendLoader?: (loader: GLTFLoader) => void;
@@ -153,14 +155,19 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
 
 function Model({
   url,
-  extendLoader,
 }: {
   url: string;
   extendLoader?: (loader: GLTFLoader) => void;
 }) {
   const groupRef = useRef<Group>(null);
+  const gl = useThree((state) => state.gl);
 
-  const { scene, animations } = useGLTF(url, false, false, extendLoader as any);
+  const { scene, animations } = useGLTF(url, false, false, (loader) => {
+    gltfLodLoader(loader as any, gl as any, {});
+    loader.register(
+      (parser) => new GLTFAnimationPointerExtension(parser as any) as any,
+    );
+  });
 
   const { actions } = useAnimations(animations, groupRef);
 
