@@ -74,6 +74,89 @@ interface ExtendedGLTFParser extends GLTFParser {
 type AnimationTargetType = "node" | "material" | "camera" | "light";
 
 // ---------- Constants ----------
+const GLTF_TEXTURE_SLOT_MAP: Array<[string, string]> = [
+  ["pbrMetallicRoughness/baseColorTexture", "map"],
+  ["pbrMetallicRoughness/metallicRoughnessTexture", "metalnessMap"],
+  ["normalTexture", "normalMap"],
+  ["occlusionTexture", "aoMap"],
+  ["emissiveTexture", "emissiveMap"],
+  ["extensions/KHR_materials_clearcoat/clearcoatTexture", "clearcoatMap"],
+  [
+    "extensions/KHR_materials_clearcoat/clearcoatRoughnessTexture",
+    "clearcoatRoughnessMap",
+  ],
+  [
+    "extensions/KHR_materials_clearcoat/clearcoatNormalTexture",
+    "clearcoatNormalMap",
+  ],
+  ["extensions/KHR_materials_sheen/sheenColorTexture", "sheenColorMap"],
+  ["extensions/KHR_materials_sheen/sheenRoughnessTexture", "sheenRoughnessMap"],
+  [
+    "extensions/KHR_materials_transmission/transmissionTexture",
+    "transmissionMap",
+  ],
+  ["extensions/KHR_materials_volume/thicknessTexture", "thicknessMap"],
+  ["extensions/KHR_materials_specular/specularTexture", "specularIntensityMap"],
+  [
+    "extensions/KHR_materials_specular/specularColorTexture",
+    "specularColorMap",
+  ],
+  ["extensions/KHR_materials_iridescence/iridescenceTexture", "iridescenceMap"],
+  [
+    "extensions/KHR_materials_iridescence/iridescenceThicknessTexture",
+    "iridescenceThicknessMap",
+  ],
+  ["extensions/KHR_materials_anisotropy/anisotropyTexture", "anisotropyMap"],
+];
+
+const KHR_TRANSFORM_PROP_MAP: Record<string, string> = {
+  offset: "offset",
+  scale: "repeat",
+  rotation: "rotation",
+};
+
+/**
+ * "normalTexture/extensions/KHR_texture_transform/offset" → "normalMap/offset"
+ * Trả về null nếu không phải texture transform path.
+ */
+function mapTextureTransform(targetProperty: string): string | null {
+  const marker = "/extensions/KHR_texture_transform/";
+  const idx = targetProperty.indexOf(marker);
+  if (idx === -1) return null;
+
+  const gltfTexPath = targetProperty.substring(0, idx);
+  const xformProp = targetProperty.substring(idx + marker.length);
+
+  const threeProp = KHR_TRANSFORM_PROP_MAP[xformProp];
+  if (!threeProp) return null;
+
+  for (const [prefix, slot] of GLTF_TEXTURE_SLOT_MAP) {
+    if (gltfTexPath === prefix) return slot + "/" + threeProp;
+  }
+  return null;
+}
+
+// Tất cả texture slot mà findNode cần descend vào
+const TEXTURE_SLOTS: ReadonlyArray<string> = [
+  "map",
+  "normalMap",
+  "aoMap",
+  "emissiveMap",
+  "metalnessMap",
+  "roughnessMap",
+  "clearcoatMap",
+  "clearcoatRoughnessMap",
+  "clearcoatNormalMap",
+  "sheenColorMap",
+  "sheenRoughnessMap",
+  "transmissionMap",
+  "thicknessMap",
+  "specularIntensityMap",
+  "specularColorMap",
+  "iridescenceMap",
+  "iridescenceThicknessMap",
+  "anisotropyMap",
+];
 
 const ANIMATION_TARGET_TYPE: Record<AnimationTargetType, AnimationTargetType> =
   {
@@ -267,18 +350,6 @@ export class GLTFAnimationPointerExtension {
           case "normalTexture/scale":
             targetProperty = "normalScale";
             break;
-          case "pbrMetallicRoughness/baseColorTexture/extensions/KHR_texture_transform/scale":
-            targetProperty = "map/repeat";
-            break;
-          case "pbrMetallicRoughness/baseColorTexture/extensions/KHR_texture_transform/offset":
-            targetProperty = "map/offset";
-            break;
-          case "emissiveTexture/extensions/KHR_texture_transform/scale":
-            targetProperty = "emissiveMap/repeat";
-            break;
-          case "emissiveTexture/extensions/KHR_texture_transform/offset":
-            targetProperty = "emissiveMap/offset";
-            break;
           case "extensions/KHR_materials_emissive_strength/emissiveStrength":
             targetProperty = "emissiveIntensity";
             break;
@@ -328,6 +399,9 @@ export class GLTFAnimationPointerExtension {
             targetProperty = "specularColor";
             break;
         }
+
+        const mapped = mapTextureTransform(targetProperty);
+        if (mapped) targetProperty = mapped;
 
         path = pathStart + targetProperty;
         break;
@@ -1007,21 +1081,17 @@ function _ensurePropertyBindingPatch(): void {
       // descend into the texture so PropertyBinding can resolve .offset / .repeat.
       // We check the FIRST segment after the leading dot.
       if (subPath.length > 0) {
-        // strip leading "." then take first segment
         const firstSeg = subPath.substring(1).split(".")[0];
 
-        if (firstSeg === "map") {
-          const tex = (found.entry.material as unknown as { map?: Texture })
-            .map;
-          if (tex) res = tex;
-        } else if (firstSeg === "emissiveMap") {
+        if (TEXTURE_SLOTS.includes(firstSeg)) {
           const tex = (
-            found.entry.material as unknown as { emissiveMap?: Texture }
-          ).emissiveMap;
+            found.entry.material as unknown as Record<
+              string,
+              Texture | undefined
+            >
+          )[firstSeg];
           if (tex) res = tex;
         }
-        // Other texture slots (normalMap, metalnessMap, ...) only support
-        // transforms via .map in three.js, so we don't descend for them.
       }
 
       if (_animationPointerDebug)
