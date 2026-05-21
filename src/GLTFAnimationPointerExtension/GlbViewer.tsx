@@ -12,7 +12,7 @@ import { type Group } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { PerfMonitor } from "r3f-monitor";
 import { GLTFAnimationPointerExtension } from "./GtlfAnimationExt";
-import { gltfLodLoader } from "gltf-lod-loader";
+import { gltfLodLoader } from "@anhldh/gltf-lod-loader";
 
 export interface GlbViewerProps {
   extendLoader?: (loader: GLTFLoader) => void;

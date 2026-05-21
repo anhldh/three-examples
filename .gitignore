@@ -25,3 +25,5 @@ dist-ssr
 
 .claude/
 stats.html
+CLAUDE.md
+public/*.glb

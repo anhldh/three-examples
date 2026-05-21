@@ -5,7 +5,6 @@ import Home, { type ExampleId } from "./components/Home";
 import LodViewer from "./lod/LodViewer";
 import SparkViewer from "./spark/SparkViewer";
 import { GlbViewer } from "./GLTFAnimationPointerExtension/GlbViewer";
-import { GLTFAnimationPointerExtension } from "./GLTFAnimationPointerExtension/GtlfAnimationExt";
 import ModelViewerGoogle from "./model-viewer/ModelViewer";
 
 function App() {
@@ -44,15 +43,7 @@ function App() {
       {current === "ply" && <PLYViewer />}
       {current === "lod" && <LodViewer />}
       {current === "spark" && <SparkViewer />}
-      {current === "animation-pointer" && (
-        <GlbViewer
-          extendLoader={(loader) => {
-            loader.register(
-              (parser) => new GLTFAnimationPointerExtension(parser),
-            );
-          }}
-        />
-      )}
+      {current === "animation-pointer" && <GlbViewer />}
       {current === "model-viewer" && <ModelViewerGoogle />}
     </div>
   );

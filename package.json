@@ -10,11 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@anhldh/gltf-lod-loader": "0.0.4",
+    "@anhldh/model-viewer": "0.2.0",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "@react-three/postprocessing": "^3.0.4",
     "@sparkjsdev/spark": "^2.0.0",
-    "gltf-lod-loader": "./src/libs/gltf-lod-loader-0.0.1.tgz",
     "leva": "^0.10.1",
     "postprocessing": "^6.39.0",
     "r3f-monitor": "^1.0.2",
