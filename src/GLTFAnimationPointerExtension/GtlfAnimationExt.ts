@@ -412,22 +412,28 @@ export class GLTFAnimationPointerExtension {
         const pathStartNode = path.substring(0, pathIndexNode);
         targetProperty = path.substring(pathIndexNode);
 
-        switch (targetProperty) {
-          case "translation":
-            targetProperty = "position";
-            break;
-          case "rotation":
-            targetProperty = "quaternion";
-            break;
-          case "scale":
-            targetProperty = "scale";
-            break;
-          case "weights":
-            targetProperty = "morphTargetInfluences";
-            break;
-          case "extensions/KHR_node_visibility/visible":
-            targetProperty = "visible";
-            break;
+        if (targetProperty.startsWith("weights/")) {
+          // `/nodes/{}/weights/{}` - control individual morph weights
+          const weightIndex = targetProperty.substring("weights/".length);
+          targetProperty = "morphTargetInfluences[" + weightIndex + "]";
+        } else {
+          switch (targetProperty) {
+            case "translation":
+              targetProperty = "position";
+              break;
+            case "rotation":
+              targetProperty = "quaternion";
+              break;
+            case "scale":
+              targetProperty = "scale";
+              break;
+            case "weights":
+              targetProperty = "morphTargetInfluences";
+              break;
+            case "extensions/KHR_node_visibility/visible":
+              targetProperty = "visible";
+              break;
+          }
         }
 
         path = pathStartNode + targetProperty;
@@ -757,7 +763,7 @@ export class GLTFAnimationPointerExtension {
     // We do this by checking channels here BEFORE doing any custom work.
     const hasPointerChannel = animationDef.channels.some(
       (ch) =>
-        !!ch.target.extensions &&
+        !!ch.target?.extensions &&
         !!ch.target.extensions[KHR_ANIMATION_POINTER] &&
         ch.target.path === "pointer",
     );
@@ -774,12 +780,41 @@ export class GLTFAnimationPointerExtension {
         }
       )._loadAnimation;
       if (typeof originalLoad === "function") {
-        return originalLoad.call(parser, animationIndex);
+        // Bọc cả native loader: nếu nó throw/reject (vd node/material index lệch
+        // sau khi qua pipeline) thì fallback sang bản tự viết có guard, và nếu
+        // bản đó cũng lỗi thì trả clip rỗng — không bao giờ làm hỏng parse.
+        try {
+          return Promise.resolve(
+            originalLoad.call(parser, animationIndex),
+          ).catch((err) => {
+            console.warn(
+              KHR_ANIMATION_POINTER +
+                ": native loadAnimation lỗi, fallback (animation có thể bị bỏ qua)",
+              animationIndex,
+              err,
+            );
+            return this._loadAnimationWithoutPointer(animationIndex).catch(() =>
+              this._emptyClip(animationIndex),
+            );
+          });
+        } catch (err) {
+          console.warn(
+            KHR_ANIMATION_POINTER +
+              ": native loadAnimation throw sync, fallback",
+            animationIndex,
+            err,
+          );
+          return this._loadAnimationWithoutPointer(animationIndex).catch(() =>
+            this._emptyClip(animationIndex),
+          );
+        }
       }
       // No internal hook available — use parser.loadAnimation but guard against
       // recursion by temporarily blocking our extension. Since we control this,
       // we just build using _createAnimationTracks directly.
-      return this._loadAnimationWithoutPointer(animationIndex);
+      return this._loadAnimationWithoutPointer(animationIndex).catch(() =>
+        this._emptyClip(animationIndex),
+      );
     }
 
     const animationName = animationDef.name
@@ -824,18 +859,48 @@ export class GLTFAnimationPointerExtension {
         !!target.extensions[KHR_ANIMATION_POINTER] &&
         target.path === "pointer";
 
-      let nodeDependency: Promise<unknown> | null | undefined =
-        this.loadAnimationTargetFromChannelWithAnimationPointer(channel);
-      if (!nodeDependency && !isPointerChannel) {
-        nodeDependency = this.loadAnimationTargetFromChannel(channel);
+      let nodeDependency: Promise<unknown> | null | undefined;
+      try {
+        nodeDependency =
+          this.loadAnimationTargetFromChannelWithAnimationPointer(channel);
+        if (!nodeDependency && !isPointerChannel) {
+          nodeDependency = this.loadAnimationTargetFromChannel(channel);
+        }
+      } catch (err) {
+        // Lỗi đồng bộ khi resolve target (vd resolver) → bỏ qua channel này
+        console.warn(
+          KHR_ANIMATION_POINTER + ": resolve target lỗi, bỏ qua channel",
+          target,
+          err,
+        );
+        nodeDependency = undefined;
       }
 
-      pendingNodes.push(nodeDependency);
+      // Nếu dependency reject (vd material/node index không tồn tại sau pipeline)
+      // → nuốt lỗi và trả null để channel bị skip, KHÔNG làm reject cả animation.
+      const safeNode =
+        nodeDependency == null
+          ? nodeDependency
+          : Promise.resolve(nodeDependency).catch((err) => {
+              console.warn(
+                KHR_ANIMATION_POINTER +
+                  ": dependency target lỗi, bỏ qua channel",
+                target,
+                err,
+              );
+              return null;
+            });
+
+      pendingNodes.push(safeNode);
       pendingInputAccessors.push(
-        parser.getDependency("accessor", input) as Promise<GLTFAccessor>,
+        (
+          parser.getDependency("accessor", input) as Promise<GLTFAccessor>
+        ).catch(() => undefined as unknown as GLTFAccessor),
       );
       pendingOutputAccessors.push(
-        parser.getDependency("accessor", output) as Promise<GLTFAccessor>,
+        (
+          parser.getDependency("accessor", output) as Promise<GLTFAccessor>
+        ).catch(() => undefined as unknown as GLTFAccessor),
       );
       pendingSamplers.push(sampler);
       pendingTargets.push(target);
@@ -847,61 +912,43 @@ export class GLTFAnimationPointerExtension {
       Promise.all(pendingOutputAccessors),
       Promise.all(pendingSamplers),
       Promise.all(pendingTargets),
-    ]).then((dependencies) => {
-      const nodes = dependencies[0] as Array<Object3D | undefined>;
-      const inputAccessors = dependencies[1];
-      const outputAccessors = dependencies[2];
-      const samplers = dependencies[3];
-      const targets = dependencies[4];
+    ])
+      .then((dependencies) => {
+        const nodes = dependencies[0] as Array<Object3D | undefined>;
+        const inputAccessors = dependencies[1];
+        const outputAccessors = dependencies[2];
+        const samplers = dependencies[3];
+        const targets = dependencies[4];
 
-      const tracks: KeyframeTrack[] = [];
+        const tracks: KeyframeTrack[] = [];
 
-      for (let i = 0, il = nodes.length; i < il; i++) {
-        const node = nodes[i];
-        const inputAccessor = inputAccessors[i];
-        const outputAccessor = outputAccessors[i];
-        const sampler = samplers[i];
-        const target = targets[i];
+        for (let i = 0, il = nodes.length; i < il; i++) {
+          const node = nodes[i];
+          const inputAccessor = inputAccessors[i];
+          const outputAccessor = outputAccessors[i];
+          const sampler = samplers[i];
+          const target = targets[i];
 
-        if (node === undefined || node === null) continue;
-        if (!inputAccessor || !outputAccessor) continue;
+          if (node === undefined || node === null) continue;
+          if (!inputAccessor || !outputAccessor) continue;
 
-        if ((node as Object3D).updateMatrix) {
-          node.updateMatrix();
-          node.matrixAutoUpdate = true;
-        }
+          if ((node as Object3D).updateMatrix) {
+            node.updateMatrix();
+            node.matrixAutoUpdate = true;
+          }
 
-        // Determine if this is a pointer channel — if so, we must NOT fall back
-        // to Three.js's stock _createAnimationTracks, because it expects a node-
-        // shaped target and a path like "translation"/"rotation"/etc, neither of
-        // which apply to pointer channels.
-        const isPointerChannel =
-          !!target.extensions &&
-          !!target.extensions[KHR_ANIMATION_POINTER] &&
-          target.path === "pointer";
+          // Determine if this is a pointer channel — if so, we must NOT fall back
+          // to Three.js's stock _createAnimationTracks, because it expects a node-
+          // shaped target and a path like "translation"/"rotation"/etc, neither of
+          // which apply to pointer channels.
+          const isPointerChannel =
+            !!target?.extensions &&
+            !!target.extensions[KHR_ANIMATION_POINTER] &&
+            target.path === "pointer";
 
-        let createdTracks: KeyframeTrack[] | null = null;
-        try {
-          createdTracks = this.createAnimationTracksWithAnimationPointer(
-            node,
-            inputAccessor,
-            outputAccessor,
-            sampler,
-            target,
-          );
-        } catch (err) {
-          console.warn(
-            KHR_ANIMATION_POINTER +
-              ": failed to create pointer track, skipping channel",
-            err,
-            target,
-          );
-          createdTracks = null;
-        }
-
-        if (!createdTracks && !isPointerChannel) {
+          let createdTracks: KeyframeTrack[] | null = null;
           try {
-            createdTracks = parser._createAnimationTracks(
+            createdTracks = this.createAnimationTracksWithAnimationPointer(
               node,
               inputAccessor,
               outputAccessor,
@@ -911,23 +958,58 @@ export class GLTFAnimationPointerExtension {
           } catch (err) {
             console.warn(
               KHR_ANIMATION_POINTER +
-                ": fallback track creation failed, skipping channel",
+                ": failed to create pointer track, skipping channel",
               err,
               target,
             );
             createdTracks = null;
           }
-        }
 
-        if (createdTracks) {
-          for (let k = 0; k < createdTracks.length; k++) {
-            tracks.push(createdTracks[k]);
+          if (!createdTracks && !isPointerChannel) {
+            try {
+              createdTracks = parser._createAnimationTracks(
+                node,
+                inputAccessor,
+                outputAccessor,
+                sampler,
+                target,
+              );
+            } catch (err) {
+              console.warn(
+                KHR_ANIMATION_POINTER +
+                  ": fallback track creation failed, skipping channel",
+                err,
+                target,
+              );
+              createdTracks = null;
+            }
+          }
+
+          if (createdTracks) {
+            for (let k = 0; k < createdTracks.length; k++) {
+              tracks.push(createdTracks[k]);
+            }
           }
         }
-      }
 
-      return new AnimationClip(animationName, undefined, tracks);
-    });
+        return new AnimationClip(animationName, undefined, tracks);
+      })
+      .catch((err) => {
+        // Lưới an toàn cuối: bất cứ lỗi nào còn sót lại → trả clip rỗng,
+        // model vẫn load bình thường (chỉ mất animation này).
+        console.warn(
+          KHR_ANIMATION_POINTER +
+            ": loadAnimation thất bại hoàn toàn, trả clip rỗng",
+          animationIndex,
+          err,
+        );
+        return this._emptyClip(animationIndex);
+      });
+  }
+
+  /** Tạo một AnimationClip rỗng (dùng khi một animation lỗi và cần bỏ qua). */
+  private _emptyClip(animationIndex: number): AnimationClip {
+    return new AnimationClip("animation_" + animationIndex, undefined, []);
   }
 
   /**
@@ -966,17 +1048,36 @@ export class GLTFAnimationPointerExtension {
           : sampler.output;
 
       if (target.node === undefined) continue; // skip channels with no target
+      // Bỏ qua nếu node index trỏ ra ngoài range (đã bị prune/đổi thứ tự)
+      if (
+        !Array.isArray(json.nodes) ||
+        (json.nodes as unknown[])[target.node] === undefined
+      ) {
+        console.warn(
+          KHR_ANIMATION_POINTER +
+            ": node[" +
+            target.node +
+            "] không tồn tại, bỏ qua channel",
+        );
+        continue;
+      }
 
       pendingNodes.push(
-        parser.getDependency("node", target.node) as Promise<
-          Object3D | undefined
-        >,
+        (
+          parser.getDependency("node", target.node) as Promise<
+            Object3D | undefined
+          >
+        ).catch(() => undefined),
       );
       pendingInputAccessors.push(
-        parser.getDependency("accessor", input) as Promise<GLTFAccessor>,
+        (
+          parser.getDependency("accessor", input) as Promise<GLTFAccessor>
+        ).catch(() => undefined as unknown as GLTFAccessor),
       );
       pendingOutputAccessors.push(
-        parser.getDependency("accessor", output) as Promise<GLTFAccessor>,
+        (
+          parser.getDependency("accessor", output) as Promise<GLTFAccessor>
+        ).catch(() => undefined as unknown as GLTFAccessor),
       );
       pendingSamplers.push(sampler);
       pendingTargets.push(target);
@@ -988,47 +1089,58 @@ export class GLTFAnimationPointerExtension {
       Promise.all(pendingOutputAccessors),
       Promise.all(pendingSamplers),
       Promise.all(pendingTargets),
-    ]).then((deps) => {
-      const nodes = deps[0];
-      const inputAccessors = deps[1];
-      const outputAccessors = deps[2];
-      const samplers = deps[3];
-      const targets = deps[4];
+    ])
+      .then((deps) => {
+        const nodes = deps[0];
+        const inputAccessors = deps[1];
+        const outputAccessors = deps[2];
+        const samplers = deps[3];
+        const targets = deps[4];
 
-      const tracks: KeyframeTrack[] = [];
+        const tracks: KeyframeTrack[] = [];
 
-      for (let i = 0; i < nodes.length; i++) {
-        const node = nodes[i];
-        if (!node) continue;
+        for (let i = 0; i < nodes.length; i++) {
+          const node = nodes[i];
+          if (!node) continue;
+          if (!inputAccessors[i] || !outputAccessors[i]) continue;
 
-        if (node.updateMatrix) {
-          node.updateMatrix();
-          node.matrixAutoUpdate = true;
-        }
-
-        try {
-          const createdTracks = parser._createAnimationTracks(
-            node,
-            inputAccessors[i],
-            outputAccessors[i],
-            samplers[i],
-            targets[i],
-          );
-          if (createdTracks) {
-            for (const t of createdTracks) tracks.push(t);
+          if (node.updateMatrix) {
+            node.updateMatrix();
+            node.matrixAutoUpdate = true;
           }
-        } catch (err) {
-          console.warn(
-            KHR_ANIMATION_POINTER +
-              ": failed to create track for non-pointer channel",
-            err,
-            targets[i],
-          );
-        }
-      }
 
-      return new AnimationClip(animationName, undefined, tracks);
-    });
+          try {
+            const createdTracks = parser._createAnimationTracks(
+              node,
+              inputAccessors[i],
+              outputAccessors[i],
+              samplers[i],
+              targets[i],
+            );
+            if (createdTracks) {
+              for (const t of createdTracks) tracks.push(t);
+            }
+          } catch (err) {
+            console.warn(
+              KHR_ANIMATION_POINTER +
+                ": failed to create track for non-pointer channel",
+              err,
+              targets[i],
+            );
+          }
+        }
+
+        return new AnimationClip(animationName, undefined, tracks);
+      })
+      .catch((err) => {
+        console.warn(
+          KHR_ANIMATION_POINTER +
+            ": _loadAnimationWithoutPointer thất bại, trả clip rỗng",
+          animationIndex,
+          err,
+        );
+        return this._emptyClip(animationIndex);
+      });
   }
 }
 
