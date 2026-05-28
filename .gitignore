@@ -27,3 +27,4 @@ dist-ssr
 stats.html
 CLAUDE.md
 public/*.glb
+*.glb

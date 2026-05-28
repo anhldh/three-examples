@@ -6,6 +6,7 @@ import LodViewer from "./lod/LodViewer";
 import SparkViewer from "./spark/SparkViewer";
 import { GlbViewer } from "./GLTFAnimationPointerExtension/GlbViewer";
 import ModelViewerGoogle from "./model-viewer/ModelViewer";
+import EnvironmentScene from "./environment-light/Scene";
 
 function App() {
   const [current, setCurrent] = useState<ExampleId | null>(null);
@@ -45,6 +46,7 @@ function App() {
       {current === "spark" && <SparkViewer />}
       {current === "animation-pointer" && <GlbViewer />}
       {current === "model-viewer" && <ModelViewerGoogle />}
+      {current === "environment-light" && <EnvironmentScene />}
     </div>
   );
 }

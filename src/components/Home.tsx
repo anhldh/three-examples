@@ -4,7 +4,8 @@ export type ExampleId =
   | "lod"
   | "spark"
   | "animation-pointer"
-  | "model-viewer";
+  | "model-viewer"
+  | "environment-light";
 
 interface Example {
   id: ExampleId;
@@ -66,6 +67,14 @@ const EXAMPLES: Example[] = [
       "Hiển thị glb với nhiều mức độ chi tiết (LOD) cho model-viewer (google).",
     tags: ["glb", "lod", "model-viewer"],
     accent: "linear-gradient(135deg, #6a7429, #7b9a1c)",
+  },
+  {
+    id: "environment-light",
+    title: "Environment Light",
+    subtitle: "Environment Light",
+    description: "Ánh sáng hiển thị model",
+    tags: ["glb", "light", "environment"],
+    accent: "linear-gradient(135deg, #590fda, #db0df6)",
   },
 ];
 

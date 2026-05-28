@@ -55,7 +55,7 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
           near={0.00001}
         />
         <Suspense fallback={null}>
-          <Environment preset="city" />
+          <Environment files={"/neutral.hdr"} />
 
           {/* key để force remount khi đổi URL, tránh useGLTF giữ cache của URL cũ */}
           <Model
