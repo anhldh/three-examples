@@ -7,12 +7,15 @@ import {
   useGLTF,
   Bounds,
   PerspectiveCamera,
+  AdaptiveDpr,
+  AdaptiveEvents,
 } from "@react-three/drei";
 import { type Group } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { PerfMonitor } from "r3f-monitor";
 import { GLTFAnimationPointerExtension } from "./GtlfAnimationExt";
 import { gltfLodLoader } from "@anhldh/gltf-lod-loader";
+import { EffectComposer, SMAA } from "@react-three/postprocessing";
 
 export interface GlbViewerProps {
   extendLoader?: (loader: GLTFLoader) => void;
@@ -46,8 +49,14 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
 
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
-      <Canvas style={{ width: "100%", height: "100%", background: "#fff" }}>
+      <Canvas
+        gl={{ antialias: false }}
+        dpr={[1, 2]}
+        style={{ width: "100%", height: "100%", background: "#fff" }}
+      >
         <PerfMonitor position="bottom-left" />
+        <AdaptiveDpr />
+        <AdaptiveEvents />
         <PerspectiveCamera
           makeDefault
           position={[0, 0, 0.1]}
@@ -64,8 +73,10 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
             extendLoader={extendLoader}
           />
         </Suspense>
-
-        <OrbitControls makeDefault />
+        <EffectComposer multisampling={0}>
+          <SMAA />
+        </EffectComposer>
+        <OrbitControls makeDefault enableDamping={false} />
       </Canvas>
 
       {/* Upload overlay */}
@@ -168,7 +179,14 @@ function Model({
       (parser) => new GLTFAnimationPointerExtension(parser as any) as any,
     );
   });
-
+  useEffect(() => {
+    scene.traverse((obj: any) => {
+      if (obj.isMesh && obj.material?.transparent) {
+        obj.material.depthWrite = true;
+        obj.material.needsUpdate = true;
+      }
+    });
+  }, [scene]);
   const { actions } = useAnimations(animations, groupRef);
 
   useEffect(() => {
