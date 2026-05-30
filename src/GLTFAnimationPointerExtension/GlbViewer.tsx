@@ -16,6 +16,7 @@ import { PerfMonitor } from "r3f-monitor";
 import { GLTFAnimationPointerExtension } from "./GtlfAnimationExt";
 import { gltfLodLoader } from "@anhldh/gltf-lod-loader";
 import { EffectComposer, SMAA } from "@react-three/postprocessing";
+import * as THREE from "three";
 
 export interface GlbViewerProps {
   extendLoader?: (loader: GLTFLoader) => void;
@@ -179,6 +180,13 @@ function Model({
       (parser) => new GLTFAnimationPointerExtension(parser as any) as any,
     );
   });
+  useEffect(() => {
+    scene.traverse((o) => {
+      if ((o as THREE.SkinnedMesh).isSkinnedMesh) {
+        o.frustumCulled = false;
+      }
+    });
+  }, [scene]);
   useEffect(() => {
     scene.traverse((obj: any) => {
       if (obj.isMesh && obj.material?.transparent) {
