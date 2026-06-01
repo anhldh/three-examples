@@ -5,7 +5,9 @@ export type ExampleId =
   | "spark"
   | "animation-pointer"
   | "model-viewer"
-  | "environment-light";
+  | "environment-light"
+  | "fireball"
+  | "explosion";
 
 interface Example {
   id: ExampleId;
@@ -75,6 +77,22 @@ const EXAMPLES: Example[] = [
     description: "Ánh sáng hiển thị model",
     tags: ["glb", "light", "environment"],
     accent: "linear-gradient(135deg, #590fda, #db0df6)",
+  },
+  {
+    id: "fireball",
+    title: "Fireball",
+    subtitle: "Fireball",
+    description: "Hiển thị hiệu ứng fireball",
+    tags: ["three.js", "shader", "fire"],
+    accent: "linear-gradient(135deg, #ff6b3b, #ff3b3b)",
+  },
+  {
+    id: "explosion",
+    title: "Explosion",
+    subtitle: "Explosion",
+    description: "Hiển thị hiệu ứng nổ",
+    tags: ["three.js", "shader", "explosion"],
+    accent: "linear-gradient(135deg, #ff6b3b, #ff3b3b)",
   },
 ];
 
