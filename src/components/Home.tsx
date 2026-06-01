@@ -7,7 +7,9 @@ export type ExampleId =
   | "model-viewer"
   | "environment-light"
   | "fireball"
-  | "explosion";
+  | "explosion"
+  | "snows"
+  | "clouds";
 
 interface Example {
   id: ExampleId;
@@ -93,6 +95,14 @@ const EXAMPLES: Example[] = [
     description: "Hiển thị hiệu ứng nổ",
     tags: ["three.js", "shader", "explosion"],
     accent: "linear-gradient(135deg, #ff6b3b, #ff3b3b)",
+  },
+  {
+    id: "snows",
+    title: "Snow",
+    subtitle: "Snow",
+    description: "Hiển thị hiệu ứng tuyết rơi",
+    tags: ["three.js", "shader", "snow"],
+    accent: "linear-gradient(135deg, #37383b, #787680)",
   },
 ];
 
