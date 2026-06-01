@@ -233,7 +233,7 @@ export default function SnowScene() {
         />
 
         <OrbitControls
-          enablePan={false}
+          // enablePan={false}
           minDistance={6}
           maxDistance={35}
           maxPolarAngle={Math.PI / 2 - 0.02}

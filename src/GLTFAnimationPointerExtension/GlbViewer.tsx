@@ -26,6 +26,8 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
   const url = "https://development.imaxhitech.com:9990/models/GDragon.glb";
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [uploadedName, setUploadedName] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragDepth = useRef(0);
 
   // Nếu user đã upload thì dùng blob URL, không thì dùng prop url gốc
   const currentUrl = uploadedUrl ?? url;
@@ -48,8 +50,48 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
     setUploadedName(null);
   };
 
+  const acceptFile = (file: File | undefined | null) => {
+    if (!file) return;
+    const ok =
+      /\.(glb|gltf)$/i.test(file.name) ||
+      file.type === "model/gltf-binary" ||
+      file.type === "model/gltf+json";
+    if (ok) handleFile(file);
+  };
+
+  // Drag handlers — dùng counter để tránh nhấp nháy khi rê qua các phần tử con
+  const onDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragDepth.current += 1;
+    setIsDragging(true);
+  };
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+  const onDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragDepth.current -= 1;
+    if (dragDepth.current <= 0) {
+      dragDepth.current = 0;
+      setIsDragging(false);
+    }
+  };
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragDepth.current = 0;
+    setIsDragging(false);
+    acceptFile(e.dataTransfer.files?.[0]);
+  };
+
   return (
-    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+    <div
+      style={{ position: "relative", width: "100%", height: "100%" }}
+      onDragEnter={onDragEnter}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+    >
       <Canvas
         gl={{ antialias: false }}
         dpr={[1, 2]}
@@ -79,6 +121,30 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
         </EffectComposer>
         <OrbitControls makeDefault enableDamping={false} />
       </Canvas>
+
+      {/* Drop overlay — hiện khi đang kéo file vào */}
+      {isDragging && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "rgba(20,20,24,0.45)",
+            border: "2px dashed rgba(255,255,255,0.6)",
+            borderRadius: 8,
+            color: "#fff",
+            fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+            fontSize: 16,
+            pointerEvents: "none",
+            backdropFilter: "blur(2px)",
+            zIndex: 10,
+          }}
+        >
+          Thả file .glb / .gltf vào đây để thay thế
+        </div>
+      )}
 
       {/* Upload overlay */}
       <div
@@ -110,8 +176,7 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
             type="file"
             accept=".glb,.gltf"
             onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleFile(file);
+              acceptFile(e.target.files?.[0]);
               e.target.value = "";
             }}
             style={{ display: "none" }}
