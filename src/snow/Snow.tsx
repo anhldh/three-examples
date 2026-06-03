@@ -1,10 +1,7 @@
-"use no memo";
-
 import { useRef, useMemo, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, useTexture } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
+import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
-import { PerfMonitor } from "r3f-monitor";
 
 /**
  * Tuyet bang GPU points + shader.
@@ -112,7 +109,7 @@ function makeParticles(count: number, area: number, height: number) {
   return { positions, speeds, seeds };
 }
 
-export function Snow({
+export default function Snow({
   count = 6000,
   area = 40,
   height = 28,
@@ -177,154 +174,5 @@ export function Snow({
         uniforms={uniforms}
       />
     </points>
-  );
-}
-
-// ===================== DEMO SCENE =====================
-export default function SnowScene() {
-  const [count, setCount] = useState(4000);
-  const [wind, setWind] = useState(0.3);
-  const [speed, setSpeed] = useState(1);
-  const [size, setSize] = useState(0.3);
-  const [simple, setSimple] = useState(false);
-
-  const bg = "#1a2030";
-
-  return (
-    <div
-      style={{
-        width: "100%",
-        height: "100vh",
-        position: "relative",
-        background: bg,
-      }}
-    >
-      <Canvas camera={{ position: [0, 6, 18], fov: 55 }} frameloop="always">
-        <PerfMonitor position="bottom-left" />
-        <color attach="background" args={[bg]} />
-        <fog attach="fog" args={[bg, 15, 45]} />
-
-        <mesh rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[60, 60]} />
-          <meshStandardMaterial color="#2a3548" roughness={0.9} />
-        </mesh>
-        <ambientLight intensity={0.4} />
-        <directionalLight position={[5, 12, 8]} intensity={0.6} />
-
-        <mesh position={[-4, 1.5, 0]}>
-          <boxGeometry args={[2, 3, 2]} />
-          <meshStandardMaterial color="#3a4556" />
-        </mesh>
-        <mesh position={[4, 1, -3]}>
-          <boxGeometry args={[2, 2, 2]} />
-          <meshStandardMaterial color="#3a4556" />
-        </mesh>
-
-        <Snow
-          count={count}
-          area={40}
-          height={28}
-          speed={speed}
-          wind={wind}
-          size={size}
-          simple={simple}
-          // doi thanh duong dan PNG bong tuyet cua ban:
-          texture="/particle.png"
-        />
-
-        <OrbitControls
-          // enablePan={false}
-          minDistance={6}
-          maxDistance={35}
-          maxPolarAngle={Math.PI / 2 - 0.02}
-        />
-      </Canvas>
-
-      <div
-        style={{
-          position: "absolute",
-          top: 16,
-          left: 16,
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-          padding: 16,
-          borderRadius: 12,
-          background: "rgba(8,12,20,0.7)",
-          backdropFilter: "blur(10px)",
-          border: "1px solid rgba(255,255,255,0.1)",
-          color: "#fff",
-          fontFamily: "ui-monospace, monospace",
-          maxWidth: 220,
-        }}
-      >
-        <div style={{ fontSize: 15, fontWeight: 700 }}>TUYET</div>
-
-        <label
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            fontSize: 13,
-            cursor: "pointer",
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={simple}
-            onChange={(e) => setSimple(e.target.checked)}
-          />
-          Simple (cham tron)
-        </label>
-
-        <div style={{ fontSize: 12, opacity: 0.7 }}>So hat: {count}</div>
-        <input
-          type="range"
-          min="1000"
-          max="20000"
-          step="1000"
-          value={count}
-          onChange={(e) => setCount(parseInt(e.target.value))}
-        />
-
-        <div style={{ fontSize: 12, opacity: 0.7 }}>
-          Toc do: {speed.toFixed(1)}x
-        </div>
-        <input
-          type="range"
-          min="0.3"
-          max="2.5"
-          step="0.1"
-          value={speed}
-          onChange={(e) => setSpeed(parseFloat(e.target.value))}
-        />
-
-        <div style={{ fontSize: 12, opacity: 0.7 }}>Gio: {wind.toFixed(1)}</div>
-        <input
-          type="range"
-          min="-1"
-          max="1"
-          step="0.1"
-          value={wind}
-          onChange={(e) => setWind(parseFloat(e.target.value))}
-        />
-
-        <div style={{ fontSize: 12, opacity: 0.7 }}>
-          Size: {size.toFixed(1)}x
-        </div>
-        <input
-          type="range"
-          min="0.3"
-          max="3"
-          step="0.1"
-          value={size}
-          onChange={(e) => setSize(parseFloat(e.target.value))}
-        />
-
-        <div style={{ fontSize: 11, opacity: 0.5 }}>
-          Keo de xoay, cuon de zoom.
-        </div>
-      </div>
-    </div>
   );
 }
