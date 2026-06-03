@@ -10,6 +10,7 @@ import { Canvas } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import Snow from "./Snow";
+import { PUBLIC_ASSETS_URL } from "../config/constant";
 
 // tinh do day tuyet tu count * size, clamp + normalize ve [0,1]
 function computeSnowLevel(count: number, size: number) {
@@ -18,15 +19,17 @@ function computeSnowLevel(count: number, size: number) {
 }
 
 const Frieren = ({ snowLevel }: { snowLevel: number }) => {
-  const { scene, animations } = useGLTF("/frieren/frieren.glb");
+  const { scene, animations } = useGLTF(
+    `${PUBLIC_ASSETS_URL}/models/frieren/frieren.glb`,
+  );
   const { actions, names } = useAnimations(animations, scene);
 
   // 3 texture rieng tu cung 1 anh — vi offset cua eye/mouth phai doc lap
   const [bodyTex, eyeTex, mouthTex] = useTexture(
     [
-      "/frieren/snowfrieren.webp",
-      "/frieren/snowfrieren.webp",
-      "/frieren/snowfrieren.webp",
+      `${PUBLIC_ASSETS_URL}/models/frieren/snowfrieren.webp`,
+      `${PUBLIC_ASSETS_URL}/models/frieren/snowfrieren.webp`,
+      `${PUBLIC_ASSETS_URL}/models/frieren/snowfrieren.webp`,
     ],
     (loaded) => {
       (loaded as THREE.Texture[]).forEach((t) => {
@@ -75,12 +78,15 @@ const Frieren = ({ snowLevel }: { snowLevel: number }) => {
 };
 
 const Floor = ({ snowLevel }: { snowLevel: number }) => {
-  const { scene } = useGLTF("/frieren/floor.glb");
-  const staffTex = useTexture("/frieren/snowstaff.webp", (t) => {
-    const tex = t as THREE.Texture;
-    tex.flipY = false;
-    tex.colorSpace = THREE.SRGBColorSpace;
-  });
+  const { scene } = useGLTF(`${PUBLIC_ASSETS_URL}/models/frieren/floor.glb`);
+  const staffTex = useTexture(
+    `${PUBLIC_ASSETS_URL}/models/frieren/snowstaff.webp`,
+    (t) => {
+      const tex = t as THREE.Texture;
+      tex.flipY = false;
+      tex.colorSpace = THREE.SRGBColorSpace;
+    },
+  );
 
   // luu cac mesh co morph target de update moi khi snowLevel doi
   const morphMeshes = useRef<THREE.Mesh[]>([]);
