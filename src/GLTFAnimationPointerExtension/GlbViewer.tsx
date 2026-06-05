@@ -340,7 +340,23 @@ function Model({
   }, [scene]);
 
   const { actions } = useAnimations(animations, groupRef);
-
+  useEffect(() => {
+    const seen = new Map<string, THREE.Texture>();
+    scene.traverse((o: any) => {
+      if (!o.material) return;
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      mats.forEach((m: any) => {
+        if (!m.map) return;
+        if (seen.has(m.map.uuid)) {
+          const cloned = m.map.clone();
+          cloned.needsUpdate = true;
+          m.map = cloned;
+        } else {
+          seen.set(m.map.uuid, m.map);
+        }
+      });
+    });
+  }, [scene]);
   // báo danh sách clip lên parent khi load xong
   useEffect(() => {
     onAnimationsLoaded(animations.map((a) => a.name));
