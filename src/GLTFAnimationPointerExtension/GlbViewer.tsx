@@ -9,6 +9,7 @@ import {
   PerspectiveCamera,
   AdaptiveDpr,
   AdaptiveEvents,
+  useBounds,
 } from "@react-three/drei";
 import { type Group } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
@@ -28,6 +29,19 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
   const [uploadedName, setUploadedName] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const dragDepth = useRef(0);
+
+  const [clips, setClips] = useState<string[]>([]);
+  const [active, setActive] = useState<Record<string, boolean>>({});
+
+  const toggleClip = (name: string) => {
+    setActive((prev) => ({ ...prev, [name]: !prev[name] }));
+  };
+
+  // reset animation state khi đổi model
+  const handleAnimationsLoaded = (names: string[]) => {
+    setClips(names);
+    setActive(names.length ? { [names[0]]: true } : {});
+  };
 
   // Nếu user đã upload thì dùng blob URL, không thì dùng prop url gốc
   const currentUrl = uploadedUrl ?? url;
@@ -114,6 +128,8 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
             key={currentUrl}
             url={currentUrl}
             extendLoader={extendLoader}
+            active={active}
+            onAnimationsLoaded={handleAnimationsLoaded}
           />
         </Suspense>
         <EffectComposer multisampling={0}>
@@ -226,15 +242,77 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
           </div>
         )}
       </div>
+      {/* Animation checkbox panel */}
+      {clips.length > 0 && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: 12,
+            right: 12,
+            display: "flex",
+            flexDirection: "column",
+            gap: 4,
+            padding: "8px 10px",
+            background: "rgba(20,20,24,0.85)",
+            color: "#fff",
+            border: "1px solid rgba(255,255,255,0.15)",
+            borderRadius: 4,
+            backdropFilter: "blur(8px)",
+            fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+            fontSize: 12,
+            maxHeight: "60%",
+            overflowY: "auto",
+            zIndex: 10,
+          }}
+        >
+          {clips.map((name) => (
+            <label
+              key={name}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={!!active[name]}
+                onChange={() => toggleClip(name)}
+              />
+              <span
+                style={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {name}
+              </span>
+            </label>
+          ))}
+        </div>
+      )}
     </div>
   );
+}
+function FitOnce({ deps }: { deps: any }) {
+  const bounds = useBounds();
+  useEffect(() => {
+    bounds.refresh().clip().fit();
+  }, [bounds, deps]); // chỉ fit khi scene đổi, không fit theo anim
+  return null;
 }
 
 function Model({
   url,
+  active,
+  onAnimationsLoaded,
 }: {
   url: string;
   extendLoader?: (loader: GLTFLoader) => void;
+  active: Record<string, boolean>;
+  onAnimationsLoaded: (names: string[]) => void;
 }) {
   const groupRef = useRef<Group>(null);
   const gl = useThree((state) => state.gl);
@@ -260,26 +338,48 @@ function Model({
       }
     });
   }, [scene]);
-  const { actions } = useAnimations(animations, groupRef);
 
+  const { actions } = useAnimations(animations, groupRef);
+  useEffect(() => {
+    const seen = new Map<string, THREE.Texture>();
+    scene.traverse((o: any) => {
+      if (!o.material) return;
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      mats.forEach((m: any) => {
+        if (!m.map) return;
+        if (seen.has(m.map.uuid)) {
+          const cloned = m.map.clone();
+          cloned.needsUpdate = true;
+          m.map = cloned;
+        } else {
+          seen.set(m.map.uuid, m.map);
+        }
+      });
+    });
+  }, [scene]);
+  // báo danh sách clip lên parent khi load xong
+  useEffect(() => {
+    onAnimationsLoaded(animations.map((a) => a.name));
+  }, [animations, onAnimationsLoaded]);
+
+  // play/stop theo state active
   useEffect(() => {
     if (!actions) return;
-
-    Object.values(actions).forEach((action) => {
-      action?.reset().fadeIn(0.3).play();
+    Object.entries(actions).forEach(([name, action]) => {
+      if (!action) return;
+      if (active[name]) {
+        if (!action.isRunning()) action.reset().fadeIn(0.3).play();
+      } else {
+        action.fadeOut(0.3);
+      }
     });
-
-    return () => {
-      Object.values(actions).forEach((action) => {
-        action?.fadeOut(0.3);
-      });
-    };
-  }, [actions]);
+  }, [actions, active]);
 
   return (
     <group ref={groupRef}>
-      <Bounds fit clip observe>
+      <Bounds>
         <primitive object={scene} />
+        <FitOnce deps={scene} />
       </Bounds>
     </group>
   );
