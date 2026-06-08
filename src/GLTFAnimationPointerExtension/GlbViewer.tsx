@@ -29,6 +29,7 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
   const [uploadedName, setUploadedName] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const dragDepth = useRef(0);
+  const [bgColor, setBgColor] = useState("#ffffff");
 
   const [clips, setClips] = useState<string[]>([]);
   const [active, setActive] = useState<Record<string, boolean>>({});
@@ -109,7 +110,7 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
       <Canvas
         gl={{ antialias: false }}
         dpr={[1, 2]}
-        style={{ width: "100%", height: "100%", background: "#fff" }}
+        style={{ width: "100%", height: "100%", background: bgColor }}
       >
         <PerfMonitor position="bottom-left" />
         <AdaptiveDpr />
@@ -196,6 +197,35 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
               e.target.value = "";
             }}
             style={{ display: "none" }}
+          />
+        </label>
+        <label
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "6px 12px",
+            background: "rgba(20,20,24,0.85)",
+            color: "#fff",
+            border: "1px solid rgba(255,255,255,0.15)",
+            borderRadius: 4,
+            cursor: "pointer",
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          <span>Màu nền</span>
+          <input
+            type="color"
+            value={bgColor}
+            onChange={(e) => setBgColor(e.target.value)}
+            style={{
+              width: 28,
+              height: 20,
+              padding: 0,
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+            }}
           />
         </label>
 

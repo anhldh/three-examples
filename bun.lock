@@ -5,7 +5,7 @@
     "": {
       "name": "three-resource",
       "dependencies": {
-        "@anhldh/gltf-lod-loader": "0.0.4",
+        "@anhldh/gltf-lod-loader": "^0.0.5",
         "@anhldh/model-viewer": "0.2.2",
         "@react-three/drei": "^10.7.7",
         "@react-three/fiber": "^9.5.0",
@@ -42,7 +42,7 @@
     },
   },
   "packages": {
-    "@anhldh/gltf-lod-loader": ["@anhldh/gltf-lod-loader@0.0.4", "", { "dependencies": { "meshoptimizer": "^1.1.1" }, "peerDependencies": { "three": ">=0.160.0" } }, "sha512-CwTxeoimlF8KumqUc/vrcjTrQ66NrQnCScEW34dhb8arTqG1HD1Oajle2htiB0SuLSz3n0Ys94PcxqveJ7rMWA=="],
+    "@anhldh/gltf-lod-loader": ["@anhldh/gltf-lod-loader@0.0.5", "", { "dependencies": { "meshoptimizer": "^1.1.1" }, "peerDependencies": { "three": ">=0.160.0" } }, "sha512-2L7jB7Ns7uRPWSTszaXj5jWxEM1L7dIUoKSuzthYJ7RtRFk1izwQw1Gsx9brEh0trNskm9q2zSX8PfewmHFGpw=="],
 
     "@anhldh/model-viewer": ["@anhldh/model-viewer@0.2.2", "", { "dependencies": { "@anhldh/gltf-lod-loader": "^0.0.4", "@monogrid/gainmap-js": "^3.1.0", "lit": "^3.2.1" }, "peerDependencies": { "@types/react": ">=18.0.0", "react": ">=18.0.0", "three": ">=0.170.0" }, "optionalPeers": ["@types/react", "react"] }, "sha512-7n92R1AG4QajGac0MpMZk/M87uRXf0jO2mDPaIK8sH/EoDmstGLd6mJ1AJnYMbQudtJV5rlPpg2zNBManDc5kA=="],
 
@@ -723,6 +723,8 @@
     "zod-validation-error": ["zod-validation-error@4.0.2", "", { "peerDependencies": { "zod": "^3.25.0 || ^4.0.0" } }, "sha512-Q6/nZLe6jxuU80qb/4uJ4t5v2VEZ44lzQjPDhYJNztRQ4wyWc6VF3D3Kb/fAuPetZQnhS3hnajCf9CsWesghLQ=="],
 
     "zustand": ["zustand@5.0.12", "", { "peerDependencies": { "@types/react": ">=18.0.0", "immer": ">=9.0.6", "react": ">=18.0.0", "use-sync-external-store": ">=1.2.0" }, "optionalPeers": ["@types/react", "immer", "react", "use-sync-external-store"] }, "sha512-i77ae3aZq4dhMlRhJVCYgMLKuSiZAaUPAct2AksxQ+gOtimhGMdXljRT21P5BNpeT4kXlLIckvkPM029OljD7g=="],
+
+    "@anhldh/model-viewer/@anhldh/gltf-lod-loader": ["@anhldh/gltf-lod-loader@0.0.4", "", { "dependencies": { "meshoptimizer": "^1.1.1" }, "peerDependencies": { "three": ">=0.160.0" } }, "sha512-CwTxeoimlF8KumqUc/vrcjTrQ66NrQnCScEW34dhb8arTqG1HD1Oajle2htiB0SuLSz3n0Ys94PcxqveJ7rMWA=="],
 
     "@eslint-community/eslint-utils/eslint-visitor-keys": ["eslint-visitor-keys@3.4.3", "", {}, "sha512-wpc+LXeiyiisxPlEkUzU6svyS1frIO3Mgxj1fdy7Pm8Ygzguax2N3Fa/D/ag1WqbOprdI+uY6wMUl8/a2G+iag=="],
 

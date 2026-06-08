@@ -10,6 +10,7 @@ import EnvironmentScene from "./environment-light/Scene";
 import ExplosionScene from "./fire/SceneFire";
 import ExplosionFx from "./explosionfx/ExplosionFx";
 import SnowScene from "./snow/SnowScene";
+import LightmapViewer from "./baked/BakedModel";
 
 function App() {
   const [current, setCurrent] = useState<ExampleId | null>(null);
@@ -53,6 +54,7 @@ function App() {
       {current === "fireball" && <ExplosionScene />}
       {current === "explosion" && <ExplosionFx />}
       {current === "snows" && <SnowScene />}
+      {current === "baked" && <LightmapViewer />}
     </div>
   );
 }
