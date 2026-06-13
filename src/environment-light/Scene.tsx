@@ -11,8 +11,8 @@ const EnvironmentScene = () => {
   return (
     <Canvas>
       <PerfMonitor position="top-left" />
-      <PerspectiveCamera />
-      <OrbitControls />
+      <PerspectiveCamera near={0.001} makeDefault position={[0, 0, 1]} />
+      <OrbitControls makeDefault />
       <Suspense fallback={null}>
         <ModelLod url="https://development.imaxhitech.com:9990/models/2bjQHAZrFJrmNIxfZn/lod/file.glb" />
       </Suspense>
