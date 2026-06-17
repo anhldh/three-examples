@@ -10,7 +10,8 @@ export type ExampleId =
   | "explosion"
   | "snows"
   | "clouds"
-  | "baked";
+  | "baked"
+  | "rain";
 
 interface Example {
   id: ExampleId;
@@ -112,6 +113,14 @@ const EXAMPLES: Example[] = [
     description: "Hiển thị hiệu ứng baked Lighting",
     tags: ["three.js", "shader", "baked Lighting"],
     accent: "linear-gradient(135deg, #0897f0, #787680)",
+  },
+  {
+    id: "rain",
+    title: "Rain",
+    subtitle: "Rain",
+    description: "Hiển thị hiệu ứng mưa",
+    tags: ["three.js", "shader", "rain"],
+    accent: "linear-gradient(135deg, #b0dbf5, #5c87a5)",
   },
 ];
 
