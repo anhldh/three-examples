@@ -348,7 +348,7 @@ function Model({
   const gl = useThree((state) => state.gl);
 
   const { scene, animations } = useGLTF(url, false, false, (loader) => {
-    gltfLodLoader(loader as any, gl as any, {});
+    gltfLodLoader(loader as any, gl as any);
     loader.register(
       (parser) => new GLTFAnimationPointerExtension(parser as any) as any,
     );
@@ -360,14 +360,14 @@ function Model({
       }
     });
   }, [scene]);
-  useEffect(() => {
-    scene.traverse((obj: any) => {
-      if (obj.isMesh && obj.material?.transparent) {
-        obj.material.depthWrite = true;
-        obj.material.needsUpdate = true;
-      }
-    });
-  }, [scene]);
+  // useEffect(() => {
+  //   scene.traverse((obj: any) => {
+  //     if (obj.isMesh && obj.material?.transparent) {
+  //       obj.material.depthWrite = true;
+  //       obj.material.needsUpdate = true;
+  //     }
+  //   });
+  // }, [scene]);
 
   const { actions } = useAnimations(animations, groupRef);
   useEffect(() => {
