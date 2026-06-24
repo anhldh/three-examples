@@ -11,7 +11,8 @@ export type ExampleId =
   | "snows"
   | "clouds"
   | "baked"
-  | "rain";
+  | "rain"
+  | "path";
 
 interface Example {
   id: ExampleId;
@@ -121,6 +122,14 @@ const EXAMPLES: Example[] = [
     description: "Hiển thị hiệu ứng mưa",
     tags: ["three.js", "shader", "rain"],
     accent: "linear-gradient(135deg, #b0dbf5, #5c87a5)",
+  },
+  {
+    id: "path",
+    title: "Path Finding",
+    subtitle: "Find path use navmesh",
+    description: "Tìm đường đi cho nhân vật trong model",
+    tags: ["three.js", "navmesh", "path"],
+    accent: "linear-gradient(135deg, #0ec8e9, #16bef1)",
   },
 ];
 
