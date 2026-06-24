@@ -12,6 +12,7 @@ import ExplosionFx from "./explosionfx/ExplosionFx";
 import SnowScene from "./snow/SnowScene";
 import LightmapViewer from "./baked/BakedModel";
 import RainScene from "./rain/RainScene";
+import BotNavDemo from "./navmesh/BotNavDemo";
 
 function App() {
   const [current, setCurrent] = useState<ExampleId | null>(null);
@@ -57,6 +58,7 @@ function App() {
       {current === "snows" && <SnowScene />}
       {current === "baked" && <LightmapViewer />}
       {current === "rain" && <RainScene />}
+      {current === "path" && <BotNavDemo />}
     </div>
   );
 }
