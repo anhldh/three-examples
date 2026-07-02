@@ -437,7 +437,7 @@ export default function ExplosionScene() {
         gl={{ toneMapping: THREE.ACESFilmicToneMapping }}
         frameloop="always"
       >
-        <PerfMonitor position="top-left" />
+        <PerfMonitor position="bottom-right" />
         <color attach="background" args={["#0a0a0f"]} />
 
         {/* san de thay lua dat tren be mat */}

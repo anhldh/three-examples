@@ -10,7 +10,7 @@ const ModelLod = lazy(() => import("../lod/ModelLod"));
 const EnvironmentScene = () => {
   return (
     <Canvas>
-      <PerfMonitor position="top-left" />
+      <PerfMonitor position="bottom-right" />
       <PerspectiveCamera near={0.001} makeDefault position={[0, 0, 1]} />
       <OrbitControls makeDefault />
       <Suspense fallback={null}>

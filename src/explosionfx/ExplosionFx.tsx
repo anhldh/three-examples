@@ -341,7 +341,7 @@ export default function ExplosionFXScene() {
         gl={{ toneMapping: THREE.ACESFilmicToneMapping }}
         frameloop="always"
       >
-        <PerfMonitor position="top-left" />
+        <PerfMonitor position="bottom-right" />
         <color attach="background" args={["#0a0a10"]} />
         <fog attach="fog" args={["#0a0a10", 10, 24]} />
 

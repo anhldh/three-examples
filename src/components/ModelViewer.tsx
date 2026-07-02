@@ -96,7 +96,7 @@ export default function ModelViewer() {
           </mesh>
         )}
         <Lighting />
-        <PerfMonitor position="top-left" />
+        <PerfMonitor position="bottom-right" />
         <Environment
           files={`/sky.hdr`}
           background
