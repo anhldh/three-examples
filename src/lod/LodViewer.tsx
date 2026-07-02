@@ -9,7 +9,7 @@ const ModelLod = lazy(() => import("./ModelLod"));
 const LodViewer = () => {
   return (
     <Canvas>
-      <PerfMonitor position="top-left" />
+      <PerfMonitor position="bottom-right" />
       <PerspectiveCamera />
       <OrbitControls />
       <Suspense fallback={null}>

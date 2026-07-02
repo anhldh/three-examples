@@ -112,7 +112,7 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
         dpr={[1, 2]}
         style={{ width: "100%", height: "100%", background: bgColor }}
       >
-        <PerfMonitor position="bottom-left" />
+        <PerfMonitor position="top-right" />
         <AdaptiveDpr />
         <AdaptiveEvents />
         <PerspectiveCamera
@@ -323,6 +323,33 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
           ))}
         </div>
       )}
+      <div
+        style={{
+          position: "absolute",
+          top: 40,
+          left: "50%",
+          transform: "translateX(-50%)",
+          color: "#000",
+          fontSize: 15,
+          fontWeight: 600,
+          zIndex: 10,
+          textAlign: "center",
+        }}
+      >
+        <span>
+          Trang ví dụ này sẽ ngừng support chức năng upload trong thời gian tới.
+          Vui lòng dùng{" "}
+          <a
+            href="https://gltf-info.anhldh.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#f90404", textDecoration: "underline" }}
+          >
+            trang xem model
+          </a>{" "}
+          để upload file .glb.
+        </span>
+      </div>
     </div>
   );
 }

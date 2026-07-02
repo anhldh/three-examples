@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 export type ExampleId =
   | "model"
   | "ply"
@@ -17,307 +19,291 @@ export type ExampleId =
 interface Example {
   id: ExampleId;
   title: string;
-  subtitle: string;
   description: string;
   tags: string[];
-  accent: string;
+  // Ảnh thumbnail. Tự thay link ở đây.
+  image?: string;
 }
 
 const EXAMPLES: Example[] = [
   {
-    id: "model",
-    title: "Model Viewer",
-    subtitle: "GLB + Ground Shadow",
-    description:
-      "Xem model GLB với ground shadow, environment HDR và điều khiển ánh sáng / ground qua Leva.",
-    tags: ["react-three-fiber", "drei", "leva", "shadow"],
-    accent: "linear-gradient(135deg, #3b5dff, #6b3bff)",
-  },
-  {
-    id: "ply",
-    title: "PLY Viewer",
-    subtitle: "Point Cloud & Mesh",
-    description:
-      "Kéo thả file .ply để xem point cloud hoặc mesh. Hỗ trợ cả định dạng ASCII và Binary PLY.",
-    tags: ["three.js", "point cloud", "mesh", "drag & drop"],
-    accent: "linear-gradient(135deg, #ff6b9d, #ff3b5d)",
+    id: "snows",
+    title: "shader / snow",
+    description: "Hiển thị hiệu ứng tuyết rơi",
+    tags: ["three.js", "shader", "snow"],
+    image: "/example-thumbnail/8.jpg",
   },
   {
     id: "lod",
-    title: "GLB LOD",
-    subtitle: "LOD",
+    title: "gltf / lod",
     description: "Bộ hiển thị gltf với nhiều mức độ chi tiết (LOD).",
     tags: ["three.js", "gltf", "lod"],
-    accent: "linear-gradient(135deg, #6a7429, #7b9a1c)",
-  },
-  {
-    id: "spark",
-    title: "Spark Viewer",
-    subtitle: "Spark",
-    description: "Bọ hiển thị gaussian splatting, ply.",
-    tags: ["three.js", "gaussian-splatting"],
-    accent: "linear-gradient(135deg, #19c64a, #19c64a)",
+    image: "/example-thumbnail/3.jpg",
   },
   {
     id: "animation-pointer",
-    title: "Animation Pointer",
-    subtitle: "Animation Pointer",
+    title: "animation / pointer",
     description: "Xử lý Animation Pointer",
     tags: ["three.js", "gltf", "animation-pointer"],
-    accent: "linear-gradient(135deg, #0b1072ff, #2210e7ff)",
-  },
-  {
-    id: "model-viewer",
-    title: "Model Viewer",
-    subtitle: "Model Viewer",
-    description:
-      "Hiển thị glb với nhiều mức độ chi tiết (LOD) cho model-viewer (google).",
-    tags: ["glb", "lod", "model-viewer"],
-    accent: "linear-gradient(135deg, #6a7429, #7b9a1c)",
-  },
-  {
-    id: "environment-light",
-    title: "Environment Light",
-    subtitle: "Environment Light",
-    description: "Ánh sáng hiển thị model",
-    tags: ["glb", "light", "environment"],
-    accent: "linear-gradient(135deg, #590fda, #db0df6)",
-  },
-  {
-    id: "fireball",
-    title: "Fireball",
-    subtitle: "Fireball",
-    description: "Hiển thị hiệu ứng fireball",
-    tags: ["three.js", "shader", "fire"],
-    accent: "linear-gradient(135deg, #ff6b3b, #ff3b3b)",
-  },
-  {
-    id: "explosion",
-    title: "Explosion",
-    subtitle: "Explosion",
-    description: "Hiển thị hiệu ứng nổ",
-    tags: ["three.js", "shader", "explosion"],
-    accent: "linear-gradient(135deg, #ff6b3b, #ff3b3b)",
-  },
-  {
-    id: "snows",
-    title: "Snow",
-    subtitle: "Snow",
-    description: "Hiển thị hiệu ứng tuyết rơi",
-    tags: ["three.js", "shader", "snow"],
-    accent: "linear-gradient(135deg, #37383b, #787680)",
-  },
-  {
-    id: "baked",
-    title: "Baked Lighting",
-    subtitle: "Baked Lighting",
-    description: "Hiển thị hiệu ứng baked Lighting",
-    tags: ["three.js", "shader", "baked Lighting"],
-    accent: "linear-gradient(135deg, #0897f0, #787680)",
-  },
-  {
-    id: "rain",
-    title: "Rain",
-    subtitle: "Rain",
-    description: "Hiển thị hiệu ứng mưa",
-    tags: ["three.js", "shader", "rain"],
-    accent: "linear-gradient(135deg, #b0dbf5, #5c87a5)",
+    image: "/example-thumbnail/4.jpg",
   },
   {
     id: "path",
-    title: "Path Finding",
-    subtitle: "Find path use navmesh",
+    title: "navmesh / path finding",
     description: "Tìm đường đi cho nhân vật trong model",
     tags: ["three.js", "navmesh", "path"],
-    accent: "linear-gradient(135deg, #0ec8e9, #16bef1)",
+    image: "/example-thumbnail/10.jpg",
+  },
+  {
+    id: "model-viewer",
+    title: "model-viewer / google",
+    description:
+      "Hiển thị glb với nhiều mức độ chi tiết (LOD) cho model-viewer (google).",
+    tags: ["glb", "lod", "model-viewer"],
+    image: "/example-thumbnail/3.jpg",
+  },
+  {
+    id: "model",
+    title: "model / glb / shadow",
+    description:
+      "Xem model GLB với ground shadow, environment HDR và điều khiển ánh sáng / ground qua Leva.",
+    tags: ["react-three-fiber", "drei", "leva", "shadow"],
+    image: "/example-thumbnail/1.jpg",
+  },
+  {
+    id: "ply",
+    title: "ply / point cloud",
+    description:
+      "Kéo thả file .ply để xem point cloud hoặc mesh. Hỗ trợ cả định dạng ASCII và Binary PLY.",
+    tags: ["three.js", "point cloud", "mesh", "drag & drop"],
+    image: "/example-thumbnail/2.jpg",
+  },
+
+  {
+    id: "spark",
+    title: "spark / gaussian splatting",
+    description: "Bọ hiển thị gaussian splatting, ply.",
+    tags: ["three.js", "gaussian-splatting"],
+    image: "/example-thumbnail/11.jpg",
+  },
+
+  {
+    id: "environment-light",
+    title: "environment / light",
+    description: "Ánh sáng hiển thị model",
+    tags: ["glb", "light", "environment"],
+    image: "/example-thumbnail/5.jpg",
+  },
+  {
+    id: "fireball",
+    title: "shader / fireball",
+    description: "Hiển thị hiệu ứng fireball",
+    tags: ["three.js", "shader", "fire"],
+    image: "/example-thumbnail/6.jpg",
+  },
+  {
+    id: "explosion",
+    title: "shader / explosion",
+    description: "Hiển thị hiệu ứng nổ",
+    tags: ["three.js", "shader", "explosion"],
+    image: "/example-thumbnail/7.jpg",
+  },
+  // {
+  //   id: "baked",
+  //   title: "shader / baked lighting",
+  //   description: "Hiển thị hiệu ứng baked Lighting",
+  //   tags: ["three.js", "shader", "baked Lighting"],
+  //   image: "",
+  // },
+  {
+    id: "rain",
+    title: "shader / rain",
+    description: "Hiển thị hiệu ứng mưa",
+    tags: ["three.js", "shader", "rain"],
+    image: "/example-thumbnail/9.jpg",
   },
 ];
 
 interface HomeProps {
+  current: ExampleId | null;
   onSelect: (id: ExampleId) => void;
 }
 
-const Home = ({ onSelect }: HomeProps) => {
+const mono = "'JetBrains Mono', 'Fira Code', monospace";
+
+const Home = ({ current, onSelect }: HomeProps) => {
+  const [query, setQuery] = useState("");
+
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? EXAMPLES.filter(
+        (ex) =>
+          ex.title.toLowerCase().includes(q) ||
+          ex.tags.some((t) => t.toLowerCase().includes(q)),
+      )
+    : EXAMPLES;
+
   return (
-    <div
+    <aside
       style={{
-        width: "100vw",
-        minHeight: "100vh",
-        background:
-          "radial-gradient(circle at 20% 20%, #1a1a2e 0%, #0a0a0f 60%)",
-        color: "#c8cad0",
-        fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-        padding: "64px 32px",
+        width: 300,
+        flexShrink: 0,
+        height: "100vh",
         boxSizing: "border-box",
-        overflowX: "hidden", // Tránh lỗi cuộn ngang
+        background: "#0e0e12",
+        borderRight: "1px solid rgba(255,255,255,0.08)",
+        color: "#c8cad0",
+        fontFamily: mono,
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      {/* SỬA 1: Nới rộng maxWidth lên 1600 để hiển thị được nhiều item hơn trên màn hình to */}
-      <div style={{ maxWidth: 1600, width: "100%", margin: "0 auto" }}>
-        <header style={{ marginBottom: 48, textAlign: "center" }}>
-          <div
-            style={{
-              fontSize: 12,
-              letterSpacing: 2,
-              color: "#5b8cff",
-              marginBottom: 8,
-            }}
-          >
-            THREE.JS · PLAYGROUND
-          </div>
-          <h1
-            style={{
-              fontSize: 40,
-              fontWeight: 800,
-              margin: 0,
-              color: "#e0e2e8",
-              letterSpacing: -0.5,
-            }}
-          >
-            Examples
-          </h1>
-          <p
-            style={{
-              fontSize: 14,
-              color: "#777799",
-              margin: "12px auto 0",
-              maxWidth: 620,
-              lineHeight: 1.6,
-            }}
-          >
-            Danh sách các ví dụ trong dự án. Nhấn vào một thẻ bên dưới để mở ví
-            dụ tương ứng.
-          </p>
-        </header>
+      {/* Header */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          justifyContent: "space-between",
+          padding: "18px 20px",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+        }}
+      >
+        <span style={{ fontSize: 20, fontWeight: 800, color: "#5b8cff" }}>
+          r3f
+        </span>
+        <span style={{ fontSize: 14, color: "#e0e2e8" }}>playground</span>
+      </div>
 
-        <div
+      {/* Search */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          padding: "12px 20px",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+        }}
+      >
+        <span style={{ color: "#777799", fontSize: 14 }}>⌕</span>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="search"
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-            gap: 20,
+            flex: 1,
+            background: "transparent",
+            border: "none",
+            outline: "none",
+            color: "#e0e2e8",
+            fontFamily: mono,
+            fontSize: 13,
           }}
-        >
-          {EXAMPLES.map((ex, idx) => (
+        />
+      </div>
+
+      {/* Category */}
+      <div
+        style={{
+          padding: "16px 20px 8px",
+          fontSize: 13,
+          fontWeight: 700,
+          color: "#5b8cff",
+        }}
+      >
+        webgl
+      </div>
+
+      {/* List */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "0 14px 20px" }}>
+        {filtered.map((ex) => {
+          const active = ex.id === current;
+          return (
             <button
               key={ex.id}
               onClick={() => onSelect(ex.id)}
               style={{
-                // SỬA 2: Ép button thành dạng flex-column & height 100%
-                display: "flex",
-                flexDirection: "column",
-                height: "100%",
+                display: "block",
+                width: "100%",
                 textAlign: "left",
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: 14,
-                padding: 0,
+                marginBottom: 14,
+                padding: 6,
+                border: "1px solid",
+                borderColor: active ? "rgba(91,140,255,0.6)" : "transparent",
+                borderRadius: 8,
+                background: active ? "rgba(91,140,255,0.08)" : "transparent",
                 cursor: "pointer",
                 color: "inherit",
                 fontFamily: "inherit",
-                overflow: "hidden",
-                transition: "transform 0.15s ease, border-color 0.15s ease",
+                transition: "background 0.15s ease, border-color 0.15s ease",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-3px)";
-                e.currentTarget.style.borderColor = "rgba(91,140,255,0.4)";
+                if (!active)
+                  e.currentTarget.style.background = "rgba(255,255,255,0.04)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+                if (!active) e.currentTarget.style.background = "transparent";
               }}
             >
               <div
                 style={{
-                  height: 140,
                   width: "100%",
-                  background: ex.accent,
+                  aspectRatio: "16 / 9",
+                  borderRadius: 6,
+                  overflow: "hidden",
+                  background: "linear-gradient(135deg, #26263a, #16161f)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  position: "relative",
-                  flexShrink: 0, // Đảm bảo phần màu không bị ép lùn đi
                 }}
               >
-                <span
-                  style={{
-                    fontSize: 72,
-                    fontWeight: 800,
-                    color: "rgba(255,255,255,0.25)",
-                    letterSpacing: -2,
-                  }}
-                >
-                  {String(idx + 1).padStart(2, "0")}
-                </span>
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 12,
-                    right: 14,
-                    fontSize: 10,
-                    letterSpacing: 1.5,
-                    color: "rgba(255,255,255,0.85)",
-                    fontWeight: 700,
-                  }}
-                >
-                  {ex.subtitle.toUpperCase()}
-                </div>
+                {ex.image ? (
+                  <img
+                    src={ex.image}
+                    alt={ex.title}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      display: "block",
+                    }}
+                  />
+                ) : (
+                  <span style={{ fontSize: 11, color: "#555577" }}>
+                    no preview
+                  </span>
+                )}
               </div>
-
-              {/* SỬA 3: Cho content flexGrow: 1 để tự chiếm khoảng trống, đẩy các tags xuống sát đáy */}
               <div
                 style={{
-                  padding: "18px 20px 20px",
-                  display: "flex",
-                  flexDirection: "column",
-                  flexGrow: 1,
-                  width: "100%",
-                  boxSizing: "border-box",
+                  marginTop: 8,
+                  fontSize: 13,
+                  color: active ? "#e0e2e8" : "#b6b8c2",
+                  lineHeight: 1.4,
                 }}
               >
-                <div
-                  style={{
-                    fontSize: 18,
-                    fontWeight: 700,
-                    color: "#e0e2e8",
-                    marginBottom: 6,
-                  }}
-                >
-                  {ex.title}
-                </div>
-                <div
-                  style={{
-                    fontSize: 12,
-                    color: "#888",
-                    lineHeight: 1.6,
-                    marginBottom: 14,
-                    flexGrow: 1, // Điểm mấu chốt để ép các card có chiều cao bằng nhau
-                  }}
-                >
-                  {ex.description}
-                </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {ex.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      style={{
-                        fontSize: 10,
-                        padding: "3px 8px",
-                        borderRadius: 4,
-                        background: "rgba(91,140,255,0.1)",
-                        color: "#8ba6ff",
-                        border: "1px solid rgba(91,140,255,0.2)",
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                {ex.title}
+              </div>
+              <div
+                style={{
+                  marginTop: 2,
+                  fontSize: 11,
+                  color: "#777799",
+                  lineHeight: 1.4,
+                }}
+              >
+                {ex.description}
               </div>
             </button>
-          ))}
-        </div>
+          );
+        })}
+
+        {filtered.length === 0 && (
+          <div style={{ padding: "20px 6px", fontSize: 12, color: "#777799" }}>
+            Không có kết quả.
+          </div>
+        )}
       </div>
-    </div>
+    </aside>
   );
 };
 

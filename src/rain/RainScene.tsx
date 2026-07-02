@@ -6,7 +6,7 @@ import { OrbitControls } from "@react-three/drei";
 const RainScene = () => {
   return (
     <Canvas>
-      <PerfMonitor position="top-left" />
+      <PerfMonitor position="bottom-right" />
       <OrbitControls makeDefault />
       <SimpleRain count={8000} area={100} topY={25} rangeY={25} opacity={0.2} />
     </Canvas>
