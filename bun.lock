@@ -5,6 +5,7 @@
     "": {
       "name": "three-resource",
       "dependencies": {
+        "@anhldh/gltf-animation-pointer-extensions": "^0.1.1",
         "@anhldh/gltf-lod-loader": "^0.0.7",
         "@anhldh/model-viewer": "0.2.2",
         "@react-three/drei": "^10.7.7",
@@ -44,6 +45,8 @@
     },
   },
   "packages": {
+    "@anhldh/gltf-animation-pointer-extensions": ["@anhldh/gltf-animation-pointer-extensions@0.1.1", "", { "peerDependencies": { "@gltf-transform/core": ">=4.0.0", "three": ">=0.150.0" }, "optionalPeers": ["@gltf-transform/core", "three"] }, "sha512-U7Yuz9FYjJ2CCAtqxhkyapr09RGROH04h3haLAJtEpmLNSfcZFXDOFrHay1ZTLZHbP8+csNHr2RLvbEqIpFWoQ=="],
+
     "@anhldh/gltf-lod-loader": ["@anhldh/gltf-lod-loader@0.0.7", "", { "dependencies": { "meshoptimizer": "^1.1.1" }, "peerDependencies": { "three": ">=0.160.0" } }, "sha512-Drwt8V+ecWD8ZGCxatdSEx29In0xiBJENdLBy4VS9RlplePMcq8eRmdpvJ8GooySGD2DYP8f8zcsmUD15xdwfA=="],
 
     "@anhldh/model-viewer": ["@anhldh/model-viewer@0.2.2", "", { "dependencies": { "@anhldh/gltf-lod-loader": "^0.0.4", "@monogrid/gainmap-js": "^3.1.0", "lit": "^3.2.1" }, "peerDependencies": { "@types/react": ">=18.0.0", "react": ">=18.0.0", "three": ">=0.170.0" }, "optionalPeers": ["@types/react", "react"] }, "sha512-7n92R1AG4QajGac0MpMZk/M87uRXf0jO2mDPaIK8sH/EoDmstGLd6mJ1AJnYMbQudtJV5rlPpg2zNBManDc5kA=="],

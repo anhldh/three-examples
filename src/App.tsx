@@ -13,6 +13,7 @@ import SnowScene from "./snow/SnowScene";
 import LightmapViewer from "./baked/BakedModel";
 import RainScene from "./rain/RainScene";
 import BotNavDemo from "./navmesh/BotNavDemo";
+import TrainGame from "./train-game/TrainGame";
 
 function App() {
   const [current, setCurrent] = useState<ExampleId | null>(null);
@@ -60,6 +61,7 @@ function App() {
         {current === "baked" && <LightmapViewer />}
         {current === "rain" && <RainScene />}
         {current === "path" && <BotNavDemo />}
+        {current === "train" && <TrainGame />}
       </main>
     </div>
   );

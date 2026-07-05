@@ -14,7 +14,8 @@ export type ExampleId =
   | "clouds"
   | "baked"
   | "rain"
-  | "path";
+  | "path"
+  | "train";
 
 interface Example {
   id: ExampleId;
@@ -46,6 +47,13 @@ const EXAMPLES: Example[] = [
     description: "Xử lý Animation Pointer",
     tags: ["three.js", "gltf", "animation-pointer"],
     image: "/example-thumbnail/4.jpg",
+  },
+  {
+    id: "train",
+    title: "game / train",
+    description: "Game threejs",
+    tags: ["three.js", "gltf", "game"],
+    image: "/example-thumbnail/12.jpg",
   },
   {
     id: "path",

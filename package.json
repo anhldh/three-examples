@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@anhldh/gltf-animation-pointer-extensions": "^0.1.1",
     "@anhldh/gltf-lod-loader": "^0.0.7",
     "@anhldh/model-viewer": "0.2.2",
     "@react-three/drei": "^10.7.7",

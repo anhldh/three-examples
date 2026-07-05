@@ -14,7 +14,7 @@ import {
 import { type Group } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { PerfMonitor } from "r3f-monitor";
-import { GLTFAnimationPointerExtension } from "./GtlfAnimationExt";
+import { GLTFAnimationPointerExtension } from "@anhldh/gltf-animation-pointer-extensions";
 import { gltfLodLoader } from "@anhldh/gltf-lod-loader";
 import { EffectComposer, SMAA } from "@react-three/postprocessing";
 import * as THREE from "three";
