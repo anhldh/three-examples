@@ -14,6 +14,7 @@ import LightmapViewer from "./baked/BakedModel";
 import RainScene from "./rain/RainScene";
 import BotNavDemo from "./navmesh/BotNavDemo";
 import TrainGame from "./train-game/TrainGame";
+import NobookSimulation from "./nobook/NobookSimulation";
 
 function App() {
   const [current, setCurrent] = useState<ExampleId | null>(null);
@@ -62,6 +63,7 @@ function App() {
         {current === "rain" && <RainScene />}
         {current === "path" && <BotNavDemo />}
         {current === "train" && <TrainGame />}
+        {current === "nobook" && <NobookSimulation />}
       </main>
     </div>
   );
