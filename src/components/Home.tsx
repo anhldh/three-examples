@@ -15,7 +15,8 @@ export type ExampleId =
   | "baked"
   | "rain"
   | "path"
-  | "train";
+  | "train"
+  | "nobook";
 
 interface Example {
   id: ExampleId;
@@ -61,6 +62,13 @@ const EXAMPLES: Example[] = [
     description: "Tìm đường đi cho nhân vật trong model",
     tags: ["three.js", "navmesh", "path"],
     image: "/example-thumbnail/10.jpg",
+  },
+  {
+    id: "nobook",
+    title: "nobook /simulation",
+    description: "Mô phỏng nobook",
+    tags: ["three.js", "simulation", "nobook"],
+    image: "/example-thumbnail/13.jpg",
   },
   {
     id: "model-viewer",
