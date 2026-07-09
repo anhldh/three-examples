@@ -29,7 +29,7 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
   const [uploadedName, setUploadedName] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const dragDepth = useRef(0);
-  const [bgColor, setBgColor] = useState("#ffffff");
+  const [bgColor, setBgColor] = useState("#2b2b2b");
 
   const [clips, setClips] = useState<string[]>([]);
   const [active, setActive] = useState<Record<string, boolean>>({});
@@ -177,7 +177,7 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
           fontSize: 12,
         }}
       >
-        <label
+        {/* <label
           style={{
             padding: "6px 12px",
             background: "rgba(20,20,24,0.85)",
@@ -198,7 +198,7 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
             }}
             style={{ display: "none" }}
           />
-        </label>
+        </label> */}
         <label
           style={{
             display: "flex",
@@ -329,7 +329,7 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
           top: 40,
           left: "50%",
           transform: "translateX(-50%)",
-          color: "#000",
+          color: "#fff",
           fontSize: 15,
           fontWeight: 600,
           zIndex: 10,
