@@ -15,6 +15,7 @@ import RainScene from "./rain/RainScene";
 import BotNavDemo from "./navmesh/BotNavDemo";
 import TrainGame from "./train-game/TrainGame";
 import NobookSimulation from "./nobook/NobookSimulation";
+import MuseumControlsDemo from "./camera-control/MuseumControlsDemo";
 
 function App() {
   const [current, setCurrent] = useState<ExampleId | null>(null);
@@ -64,6 +65,16 @@ function App() {
         {current === "path" && <BotNavDemo />}
         {current === "train" && <TrainGame />}
         {current === "nobook" && <NobookSimulation />}
+        {current === "camera-controls" && (
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
+          >
+            <MuseumControlsDemo />
+          </div>
+        )}
       </main>
     </div>
   );
