@@ -16,7 +16,8 @@ export type ExampleId =
   | "rain"
   | "path"
   | "train"
-  | "nobook";
+  | "nobook"
+  | "camera-controls";
 
 interface Example {
   id: ExampleId;
@@ -137,6 +138,13 @@ const EXAMPLES: Example[] = [
     description: "Hiển thị hiệu ứng mưa",
     tags: ["three.js", "shader", "rain"],
     image: "/example-thumbnail/9.jpg",
+  },
+  {
+    id: "camera-controls",
+    title: "camera-controls / demo",
+    description: "Demo camera-controls",
+    tags: ["three.js", "camera-controls", "demo"],
+    // image: "/example-thumbnail/14.jpg",
   },
 ];
 
