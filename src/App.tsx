@@ -15,7 +15,7 @@ import RainScene from "./rain/RainScene";
 import BotNavDemo from "./navmesh/BotNavDemo";
 import TrainGame from "./train-game/TrainGame";
 import NobookSimulation from "./nobook/NobookSimulation";
-import MuseumControlsDemo from "./camera-control/MuseumControlsDemo";
+// import MuseumControlsDemo from "./camera-control/MuseumControlsDemo";
 
 function App() {
   const [current, setCurrent] = useState<ExampleId | null>(null);
@@ -72,7 +72,7 @@ function App() {
               height: "100%",
             }}
           >
-            <MuseumControlsDemo />
+            {/* <MuseumControlsDemo /> */}
           </div>
         )}
       </main>
