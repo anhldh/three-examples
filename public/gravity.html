@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mô phỏng trọng lực 2.5D</title>
+<style>
+  :root {
+    --surface-1: #f7f7f5;
+    --text-primary: #1a1a1a;
+    --text-secondary: #5f5e5a;
+    --text-muted: #918f86;
+  }
+  body { margin: 0; font-family: system-ui, sans-serif; background: #fff; }
+  button {
+    padding: 6px 14px; border: 1px solid #d3d1c7; border-radius: 8px;
+    background: #fff; cursor: pointer; font-size: 13px;
+  }
+  button:hover { background: #f1efe8; }
+</style>
+</head>
+<body>
+  <h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Demo tranh động 2.5D mô phỏng trọng lực: quả táo rơi với vector vận tốc, nền parallax theo chuột</h2>
+<div style="background: var(--surface-1); border-radius: 12px; padding: 16px;">
+  <canvas id="gsc" width="1280" height="640" style="width:100%; border-radius:8px; display:block; cursor:crosshair;"></canvas>
+  <div style="display:flex; align-items:center; gap:12px; margin-top:12px; flex-wrap:wrap;">
+    <label style="font-size:13px; color:var(--text-secondary);">Gia tốc g</label>
+    <input type="range" id="grav" min="1" max="25" step="0.1" value="9.8" style="flex:1; min-width:140px;">
+    <span id="gout" style="font-size:13px; font-weight:500; min-width:70px;">9.8 m/s²</span>
+    <button id="drop" style="font-size:13px;"> Thả lại</button>
+    <button id="vecs" style="font-size:13px;">Ẩn vector</button>
+  </div>
+  <div style="display:flex; gap:24px; margin-top:10px; font-size:13px; color:var(--text-secondary);">
+    <span>v = <b id="vout" style="font-weight:500; color:var(--text-primary)">0.0</b> m/s</span>
+    <span>t = <b id="tout" style="font-weight:500; color:var(--text-primary)">0.00</b> s</span>
+    <span style="color:var(--text-muted)">Di chuột để thấy hiệu ứng parallax</span>
+  </div>
+</div>
+<script>
+const cv = document.getElementById('gsc'), ctx = cv.getContext('2d');
+const W = 1280, H = 640, GROUND = 520;
+let g = 9.8, showVec = true;
+let apple = { y: 120, vy: 0, t: 0, resting: false };
+let mx = 0.5, my = 0.5;
+const PX_PER_M = 40;
+
+cv.addEventListener('mousemove', e => {
+  const r = cv.getBoundingClientRect();
+  mx = (e.clientX - r.left) / r.width;
+  my = (e.clientY - r.top) / r.height;
+});
+
+document.getElementById('grav').addEventListener('input', e => {
+  g = parseFloat(e.target.value);
+  document.getElementById('gout').textContent = g.toFixed(1) + ' m/s²';
+});
+document.getElementById('drop').addEventListener('click', () => {
+  apple = { y: 120, vy: 0, t: 0, resting: false };
+});
+document.getElementById('vecs').addEventListener('click', e => {
+  showVec = !showVec;
+  e.target.textContent = showVec ? 'Ẩn vector' : 'Hiện vector';
+});
+
+function hill(color, baseY, amp, phase, par) {
+  const ox = (mx - 0.5) * par * 60, oy = (my - 0.5) * par * 20;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(-100, H);
+  for (let x = -100; x <= W + 100; x += 20) {
+    const y = baseY + Math.sin(x * 0.004 + phase) * amp + Math.sin(x * 0.011 + phase * 2) * amp * 0.4;
+    ctx.lineTo(x + ox, y + oy);
+  }
+  ctx.lineTo(W + 100, H);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function arrow(x1, y1, x2, y2, color, label) {
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  const a = Math.atan2(y2 - y1, x2 - x1);
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - 14 * Math.cos(a - 0.4), y2 - 14 * Math.sin(a - 0.4));
+  ctx.lineTo(x2 - 14 * Math.cos(a + 0.4), y2 - 14 * Math.sin(a + 0.4));
+  ctx.closePath(); ctx.fill();
+  ctx.font = '500 22px sans-serif';
+  ctx.fillText(label, x2 + 12, y2 + 6);
+}
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min((now - last) / 1000, 0.05); last = now;
+
+  if (!apple.resting) {
+    apple.vy += g * PX_PER_M * dt / PX_PER_M * PX_PER_M * dt > 0 ? g * dt : 0;
+    apple.vy += 0;
+    apple.t += dt;
+    apple.y += apple.vy * PX_PER_M * dt;
+    if (apple.y >= GROUND - 18) {
+      apple.y = GROUND - 18;
+      if (Math.abs(apple.vy) > 1.2) { apple.vy = -apple.vy * 0.45; }
+      else { apple.vy = 0; apple.resting = true; }
+    }
+  }
+  apple.vy = apple.resting ? 0 : apple.vy;
+  if (!apple.resting) apple.vy += 0;
+
+  document.getElementById('vout').textContent = Math.abs(apple.vy).toFixed(1);
+  document.getElementById('tout').textContent = apple.t.toFixed(2);
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#E6F1FB'; ctx.fillRect(0, 0, W, H);
+
+  const sox = (mx - 0.5) * 15, soy = (my - 0.5) * 8;
+  ctx.fillStyle = '#FAC775';
+  ctx.beginPath(); ctx.arc(1080 + sox, 110 + soy, 52, 0, 7); ctx.fill();
+
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  [[200, 150, 1], [560, 90, 1.4], [880, 190, 0.8]].forEach(([cx0, cy0, s]) => {
+    const ox = (mx - 0.5) * 30;
+    ctx.beginPath();
+    ctx.ellipse(cx0 + ox, cy0, 70 * s, 24 * s, 0, 0, 7);
+    ctx.ellipse(cx0 + 50 * s + ox, cy0 - 14 * s, 50 * s, 20 * s, 0, 0, 7);
+    ctx.fill();
+  });
+
+  hill('#B5D4F4', 400, 50, 0, 0.3);
+  hill('#97C459', 460, 40, 2, 0.6);
+  hill('#639922', GROUND, 24, 5, 1);
+
+  ctx.fillStyle = '#712B13';
+  ctx.fillRect(300, 260, 34, 270);
+  ctx.fillStyle = '#3B6D11';
+  ctx.beginPath(); ctx.arc(317, 210, 110, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.arc(240, 260, 70, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.arc(400, 255, 75, 0, 7); ctx.fill();
+
+  const ax = 520;
+  ctx.fillStyle = '#E24B4A';
+  ctx.beginPath(); ctx.arc(ax, apple.y, 18, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#4A1B0C'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(ax, apple.y - 18); ctx.lineTo(ax + 4, apple.y - 30); ctx.stroke();
+
+  if (showVec && !apple.resting) {
+    arrow(ax + 60, apple.y, ax + 60, apple.y + Math.min(apple.vy * 9, 140), '#185FA5', 'v');
+    arrow(ax - 60, apple.y, ax - 60, apple.y + g * 6, '#993C1D', 'g');
+  }
+
+  ctx.fillStyle = '#0C447C';
+  ctx.font = '500 24px sans-serif';
+  ctx.fillText('h = ' + Math.max(0, (GROUND - 18 - apple.y) / PX_PER_M).toFixed(1) + ' m', 40, 60);
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
+

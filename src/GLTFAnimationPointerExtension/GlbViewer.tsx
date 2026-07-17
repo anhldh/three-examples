@@ -13,7 +13,13 @@ import {
 } from "@react-three/drei";
 import { type Group } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { PerfMonitor } from "r3f-monitor";
+import {
+  PerfMonitor,
+  useGpuTier,
+  PerfAdaptive,
+  usePerfAdaptive,
+  PerfHeadless,
+} from "r3f-monitor";
 import { GLTFAnimationPointerExtension } from "@anhldh/gltf-animation-pointer-extensions";
 import { gltfLodLoader } from "@anhldh/gltf-lod-loader";
 import { EffectComposer, SMAA } from "@react-three/postprocessing";
@@ -21,6 +27,32 @@ import * as THREE from "three";
 
 export interface GlbViewerProps {
   extendLoader?: (loader: GLTFLoader) => void;
+}
+
+function PerfAdaptiveDpr() {
+  const setDpr = useThree((s) => s.setDpr);
+  const current = useRef(1);
+
+  usePerfAdaptive({
+    // hook của drei, phải nằm trong <PerformanceMonitor>
+    onChange: ({ factor }) => {
+      // quantize về bậc 0.25 để đổi thưa hơn
+      const next = Math.round((0.5 + factor * 1.5) * 4) / 4;
+      if (next !== current.current) {
+        current.current = next;
+        console.log("dprnext", next);
+        setDpr(next);
+      }
+    },
+  });
+  return null;
+}
+
+function PerformanceInfo() {
+  const GPUTier = useGpuTier();
+
+  console.log("GPUTier", GPUTier);
+  return null;
 }
 
 export function GlbViewer({ extendLoader }: GlbViewerProps) {
@@ -107,36 +139,41 @@ export function GlbViewer({ extendLoader }: GlbViewerProps) {
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
+      <PerformanceInfo />
       <Canvas
         gl={{ antialias: false }}
         dpr={[1, 2]}
         style={{ width: "100%", height: "100%", background: bgColor }}
       >
-        <PerfMonitor position="top-right" />
-        <AdaptiveDpr />
-        <AdaptiveEvents />
-        <PerspectiveCamera
-          makeDefault
-          position={[0, 0, 0.1]}
-          fov={45}
-          near={0.00001}
-        />
         <Suspense fallback={null}>
-          <Environment files={"/neutral.hdr"} />
+          <PerfAdaptive bounds={(hz) => [40, Math.max(55, hz * 0.66)]}>
+            <PerfAdaptiveDpr />
+            <PerfMonitor position="top-right" />
+            <PerfHeadless />
+            <AdaptiveDpr />
+            <AdaptiveEvents />
+            <PerspectiveCamera
+              makeDefault
+              position={[0, 0, 0.1]}
+              fov={45}
+              near={0.00001}
+            />
+            <Environment files={"/neutral.hdr"} />
 
-          {/* key để force remount khi đổi URL, tránh useGLTF giữ cache của URL cũ */}
-          <Model
-            key={currentUrl}
-            url={currentUrl}
-            extendLoader={extendLoader}
-            active={active}
-            onAnimationsLoaded={handleAnimationsLoaded}
-          />
+            {/* key để force remount khi đổi URL, tránh useGLTF giữ cache của URL cũ */}
+            <Model
+              key={currentUrl}
+              url={currentUrl}
+              extendLoader={extendLoader}
+              active={active}
+              onAnimationsLoaded={handleAnimationsLoaded}
+            />
+            <EffectComposer multisampling={0}>
+              <SMAA />
+            </EffectComposer>
+            <OrbitControls makeDefault enableDamping={false} />
+          </PerfAdaptive>
         </Suspense>
-        <EffectComposer multisampling={0}>
-          <SMAA />
-        </EffectComposer>
-        <OrbitControls makeDefault enableDamping={false} />
       </Canvas>
 
       {/* Drop overlay — hiện khi đang kéo file vào */}
