@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "3d-tiles-renderer": "^0.5.0",
     "@anhldh/gltf-animation-pointer-extensions": "^0.1.1",
     "@anhldh/gltf-lod-loader": "0.0.11",
     "@anhldh/model-viewer": "0.2.2",
@@ -19,6 +20,7 @@
     "@react-three/rapier": "^2.2.0",
     "@recast-navigation/three": "^0.43.1",
     "@sparkjsdev/spark": "^2.0.0",
+    "cesium": "^1.144.0",
     "leva": "^0.10.1",
     "postprocessing": "^6.39.0",
     "r3f-monitor": "2.2.1",
