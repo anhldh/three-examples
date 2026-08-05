@@ -17,7 +17,9 @@ export type ExampleId =
   | "path"
   | "train"
   | "nobook"
-  | "camera-controls";
+  | "camera-controls"
+  | "3dtiles"
+  | "cesium";
 
 interface Example {
   id: ExampleId;
@@ -138,6 +140,18 @@ const EXAMPLES: Example[] = [
     description: "Hiển thị hiệu ứng mưa",
     tags: ["three.js", "shader", "rain"],
     image: "/example-thumbnail/9.jpg",
+  },
+  {
+    id: "3dtiles",
+    title: "3d-tiles / viewer",
+    description: "Hiển thị tileset 3D Tiles bằng 3d-tiles-renderer.",
+    tags: ["three.js", "3d-tiles", "streaming"],
+  },
+  {
+    id: "cesium",
+    title: "cesium / 3d-tiles",
+    description: "Hiển thị cùng tileset bằng CesiumJS để so sánh.",
+    tags: ["cesium", "3d-tiles"],
   },
   {
     id: "camera-controls",

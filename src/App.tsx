@@ -16,6 +16,8 @@ import BotNavDemo from "./navmesh/BotNavDemo";
 import TrainGame from "./train-game/TrainGame";
 import NobookSimulation from "./nobook/NobookSimulation";
 import MuseumControlsDemo from "./camera-control/MuseumControlsDemo";
+import TilesViewer from "./3dtiles/TilesViewer";
+import CesiumViewer from "./cesium/CesiumViewer";
 
 function App() {
   const [current, setCurrent] = useState<ExampleId | null>(null);
@@ -65,6 +67,8 @@ function App() {
         {current === "path" && <BotNavDemo />}
         {current === "train" && <TrainGame />}
         {current === "nobook" && <NobookSimulation />}
+        {current === "3dtiles" && <TilesViewer />}
+        {current === "cesium" && <CesiumViewer />}
         {current === "camera-controls" && (
           <div
             style={{
