@@ -12,7 +12,7 @@
   "dependencies": {
     "3d-tiles-renderer": "^0.5.0",
     "@anhldh/gltf-animation-pointer-extensions": "^0.1.1",
-    "@anhldh/gltf-lod-loader": "0.0.11",
+    "@anhldh/gltf-lod-loader": "0.0.12",
     "@anhldh/model-viewer": "0.2.2",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",

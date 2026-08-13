@@ -15,8 +15,8 @@ importers:
         specifier: ^0.1.1
         version: 0.1.1(three@0.184.0)
       '@anhldh/gltf-lod-loader':
-        specifier: 0.0.11
-        version: 0.0.11(three@0.184.0)
+        specifier: 0.0.12
+        version: 0.0.12(three@0.184.0)
       '@anhldh/model-viewer':
         specifier: 0.2.2
         version: 0.2.2(@types/react@19.2.17)(react@19.2.7)(three@0.184.0)
@@ -157,8 +157,8 @@ packages:
       three:
         optional: true
 
-  '@anhldh/gltf-lod-loader@0.0.11':
-    resolution: {integrity: sha512-0HQHBru34Xs8dRk5XicMvuVoOlS1EWIHKuAyQ8yurHLz/qh6d97E4T/AIUeq5RrSxNI50x9YzmLOtrg9zHyynQ==}
+  '@anhldh/gltf-lod-loader@0.0.12':
+    resolution: {integrity: sha512-yNUz2/zI20wBOM4zJParR7usbVFvhdEjv41qCmb6B+1RH7E+WjD6U3CRtbLHIewNNexvznfcAs/Ba9fwy0jPSA==}
     engines: {node: '>=18'}
     peerDependencies:
       three: '>=0.160.0'
@@ -1835,6 +1835,11 @@ packages:
     peerDependencies:
       three: '>= 0.159.0'
 
+  three-mesh-bvh@0.9.14:
+    resolution: {integrity: sha512-xJzfUXnLYjgw5tRKGxjfJW3Pcx0IbwNskvpdwRryhK07SYrKrYB4W8zAaPxu784gK7G4lCBgG+vfG3YeYn95kg==}
+    peerDependencies:
+      three: '>= 0.159.0'
+
   three-stdlib@2.36.1:
     resolution: {integrity: sha512-XyGQrFmNQ5O/IoKm556ftwKsBg11TIb301MB5dWNicziQBEs2g3gtOYIf7pFiLa0zI2gUwhtCjv9fmjnxKZ1Cg==}
     peerDependencies:
@@ -2072,10 +2077,11 @@ snapshots:
     optionalDependencies:
       three: 0.184.0
 
-  '@anhldh/gltf-lod-loader@0.0.11(three@0.184.0)':
+  '@anhldh/gltf-lod-loader@0.0.12(three@0.184.0)':
     dependencies:
       meshoptimizer: 1.2.0
       three: 0.184.0
+      three-mesh-bvh: 0.9.14(three@0.184.0)
 
   '@anhldh/gltf-lod-loader@0.0.4(three@0.184.0)':
     dependencies:
@@ -3681,6 +3687,10 @@ snapshots:
       react: 19.2.7
 
   three-mesh-bvh@0.8.3(three@0.184.0):
+    dependencies:
+      three: 0.184.0
+
+  three-mesh-bvh@0.9.14(three@0.184.0):
     dependencies:
       three: 0.184.0
 
