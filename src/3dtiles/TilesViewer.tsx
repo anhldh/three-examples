@@ -19,9 +19,14 @@ import { createIonSchemaPlugin } from "./ionSchemaPlugin";
 
 const dracoLoader = new DRACOLoader().setDecoderPath("/draco/gltf/");
 
+// Có url thì dùng url, để rỗng thì load theo asset id của Ion.
+const TILESET_URL: string =
+  "https://assets.yoolife.com.vn/test-model/tileset.json";
+
 const ION_TOKEN = import.meta.env.VITE_CESIUM_ION_TOKEN;
 const ION_ASSET_ID = "5069750";
 
+const useIon = TILESET_URL === "";
 const ionSchemaPlugin = createIonSchemaPlugin(ION_ASSET_ID, ION_TOKEN);
 
 const TilesViewer = () => {
@@ -65,19 +70,23 @@ const TilesViewer = () => {
         <ambientLight intensity={0.5} />
         <TilesRenderer
           errorTarget={12}
+          url={useIon ? undefined : TILESET_URL}
           group={{ onClick: handleClick } as never}
         >
-          <TilesPlugin
-            plugin={CesiumIonAuthPlugin}
-            args={[{ apiToken: ION_TOKEN, assetId: ION_ASSET_ID }]}
-          />
+          {useIon && (
+            <TilesPlugin
+              plugin={CesiumIonAuthPlugin}
+              args={[{ apiToken: ION_TOKEN, assetId: ION_ASSET_ID }]}
+            />
+          )}
+          {/* Chỉ Ion mới cần vá schema, url thường fetch được schema.json */}
           <TilesPlugin
             plugin={GLTFExtensionsPlugin}
             args={[
               {
                 dracoLoader,
                 meshoptDecoder: MeshoptDecoder,
-                plugins: [ionSchemaPlugin],
+                plugins: useIon ? [ionSchemaPlugin] : [],
               },
             ]}
           />

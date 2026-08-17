@@ -18,6 +18,7 @@ import NobookSimulation from "./nobook/NobookSimulation";
 import MuseumControlsDemo from "./camera-control/MuseumControlsDemo";
 import TilesViewer from "./3dtiles/TilesViewer";
 import CesiumViewer from "./cesium/CesiumViewer";
+import KtxViewer from "./ktx-viewer/KtxViewer";
 
 function App() {
   const [current, setCurrent] = useState<ExampleId | null>(null);
@@ -69,6 +70,7 @@ function App() {
         {current === "nobook" && <NobookSimulation />}
         {current === "3dtiles" && <TilesViewer />}
         {current === "cesium" && <CesiumViewer />}
+        {current === "ktx2" && <KtxViewer />}
         {current === "camera-controls" && (
           <div
             style={{

@@ -19,7 +19,8 @@ export type ExampleId =
   | "nobook"
   | "camera-controls"
   | "3dtiles"
-  | "cesium";
+  | "cesium"
+  | "ktx2";
 
 interface Example {
   id: ExampleId;
@@ -154,6 +155,12 @@ const EXAMPLES: Example[] = [
     tags: ["cesium", "3d-tiles"],
   },
   {
+    id: "ktx2",
+    title: "texture / ktx2 viewer",
+    description: "Chọn hoặc kéo thả file KTX2 để xem đúng tỷ lệ ảnh.",
+    tags: ["three.js", "drei", "ktx2", "texture", "drag & drop"],
+  },
+  {
     id: "camera-controls",
     title: "camera-controls / demo",
     description: "Demo camera-controls",
@@ -253,7 +260,7 @@ const Home = ({ current, onSelect }: HomeProps) => {
 
       {/* List */}
       <div style={{ flex: 1, overflowY: "auto", padding: "0 14px 20px" }}>
-        {filtered.map((ex) => {
+        {filtered.map((ex, index) => {
           const active = ex.id === current;
           return (
             <button
@@ -284,6 +291,7 @@ const Home = ({ current, onSelect }: HomeProps) => {
             >
               <div
                 style={{
+                  position: "relative",
                   width: "100%",
                   aspectRatio: "16 / 9",
                   borderRadius: 6,
@@ -294,6 +302,27 @@ const Home = ({ current, onSelect }: HomeProps) => {
                   justifyContent: "center",
                 }}
               >
+                <span
+                  style={{
+                    position: "absolute",
+                    top: 12,
+                    left: 12,
+                    zIndex: 1,
+                    minWidth: 22,
+                    padding: "3px 5px",
+                    border: "1px solid rgba(255,255,255,0.14)",
+                    borderRadius: 4,
+                    background: "rgba(8,8,13,0.78)",
+                    color: active ? "#9db8ff" : "#b3b6c1",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    lineHeight: 1.2,
+                    textAlign: "center",
+                    backdropFilter: "blur(6px)",
+                  }}
+                >
+                  {String(index + 1).padStart(2, "0")}
+                </span>
                 {ex.image ? (
                   <img
                     src={ex.image}
