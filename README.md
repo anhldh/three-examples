@@ -17,7 +17,9 @@ Toàn bộ dự án sử dụng **Bun** để quản lý dependencies và chạy
 - **Camera Controls:** [camera-controls](https://github.com/yomotsu/camera-controls)
 - **UI Controls:** [Leva](https://github.com/pmndrs/leva)
 - **Shader:** Custom GLSL - Vertex Shader & Fragment Shader
-- **Model Formats:** GLB / GLTF / PLY
+- **Model & Texture Formats:** GLB / GLTF / PLY / KTX2
+- **GPU Texture Loading:** `useKTX2` / Basis Universal
+- **Performance Monitor:** `r3f-monitor`
 - **3D Tiles:** `3d-tiles-renderer`
 - **Geospatial 3D:** CesiumJS
 - **Gaussian Splatting:** Spark
@@ -48,6 +50,7 @@ Các ví dụ hiện có trong project:
 | 🌧️ **rain**              | **Shader / Rain**              | Hiệu ứng mưa thời gian thực được render bằng custom Shader.                                                                    | `three.js`, `shader`, `rain`                   |
 | 🗺️ **3dtiles**           | **3D Tiles / Viewer**          | Hiển thị và streaming tileset theo chuẩn 3D Tiles bằng `3d-tiles-renderer`.                                                    | `three.js`, `3d-tiles`, `streaming`            |
 | 🌍 **cesium**            | **Cesium / 3D Tiles**          | Hiển thị cùng dữ liệu 3D Tiles bằng CesiumJS để thử nghiệm và so sánh với Three.js.                                            | `cesium`, `3d-tiles`                           |
+| 🖼️ **ktx2**              | **Texture / KTX2 Viewer**      | Chọn hoặc kéo thả file `.ktx2`, hiển thị đúng tỷ lệ ảnh và theo dõi CPU, GPU, VRAM trong thời gian thực.                       | `three.js`, `drei`, `ktx2`, `r3f-monitor`      |
 | 🎥 **camera-controls**   | **Camera Controls / Demo**     | Demo các thao tác camera bằng thư viện `camera-controls`, phục vụ thử nghiệm orbit, focus và transition camera.                | `three.js`, `camera-controls`, `demo`          |
 
 ---
@@ -64,6 +67,20 @@ Các ví dụ liên quan tới việc load, hiển thị và tối ưu tài nguy
 - Google `<model-viewer>`
 - Environment Lighting
 - Gaussian Splatting
+- KTX2 Texture Viewer
+
+#### KTX2 Texture Viewer
+
+Ví dụ `ktx2` hỗ trợ kiểm tra trực tiếp texture KTX2 trong trình duyệt:
+
+- Chọn file `.ktx2` từ máy hoặc kéo thả file vào vùng viewer.
+- Load texture bằng `useKTX2` của `@react-three/drei`.
+- Tự đọc kích thước texture và tạo plane giữ đúng tỷ lệ ảnh.
+- Điều chỉnh camera tự động để texture nằm gọn trong vùng hiển thị.
+- Lật UV phù hợp với đặc điểm `flipY=false` của KTX2.
+- Hiển thị resolution, aspect ratio, số mipmap và loại texture.
+- Theo dõi CPU, GPU và VRAM ước tính bằng `r3f-monitor`.
+- File được đọc qua Blob URL cục bộ và không cần nhập URL ảnh.
 
 ---
 
@@ -180,6 +197,7 @@ snows
 rain
 3dtiles
 cesium
+ktx2
 camera-controls
 ```
 
@@ -205,6 +223,8 @@ Một số chủ đề chính:
 - 3D Tiles
 - Streaming dữ liệu 3D lớn
 - CesiumJS
+- KTX2 / GPU-compressed textures
+- CPU, GPU và VRAM performance monitoring
 - Web performance optimization
 
 Các example có thể được sử dụng như những playground độc lập để kiểm thử một kỹ thuật trước khi tích hợp vào project thực tế.
