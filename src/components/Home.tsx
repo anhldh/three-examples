@@ -20,7 +20,10 @@ export type ExampleId =
   | "camera-controls"
   | "3dtiles"
   | "cesium"
-  | "ktx2";
+  | "ktx2"
+  | "webgpu"
+  | "webgpu-galaxy"
+  | "webgpu-draw-calls";
 
 interface Example {
   id: ExampleId;
@@ -32,6 +35,35 @@ interface Example {
 }
 
 const EXAMPLES: Example[] = [
+  {
+    id: "webgpu",
+    title: "webgpu / linked particles",
+    description: "Mô phỏng hạt và liên kết trên GPU bằng TSL compute shader.",
+    tags: ["three.js", "react-three-fiber", "webgpu", "tsl", "compute"],
+    image: "/example-thumbnail/ex1.jpg",
+  },
+  {
+    id: "webgpu-galaxy",
+    title: "webgpu vs webgl / galaxy",
+    description: "So sánh WebGPU và WebGL2 với tối đa 250.000 hạt TSL.",
+    tags: ["three.js", "react-three-fiber", "webgpu", "webgl", "tsl", "galaxy"],
+    image: "/example-thumbnail/ex2.jpg",
+  },
+  {
+    id: "webgpu-draw-calls",
+    title: "webgpu vs webgl / draw calls",
+    description:
+      "So sánh overhead khi submit tối đa 10.000 draw call riêng biệt.",
+    tags: [
+      "three.js",
+      "react-three-fiber",
+      "webgpu",
+      "webgl",
+      "draw-call",
+      "benchmark",
+    ],
+    image: "/example-thumbnail/ex3.jpg",
+  },
   {
     id: "snows",
     title: "shader / snow",
@@ -255,7 +287,7 @@ const Home = ({ current, onSelect }: HomeProps) => {
           color: "#5b8cff",
         }}
       >
-        webgl
+        webgl + webgpu
       </div>
 
       {/* List */}
