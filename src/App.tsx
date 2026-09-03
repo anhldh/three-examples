@@ -19,6 +19,9 @@ import MuseumControlsDemo from "./camera-control/MuseumControlsDemo";
 import TilesViewer from "./3dtiles/TilesViewer";
 import CesiumViewer from "./cesium/CesiumViewer";
 import KtxViewer from "./ktx-viewer/KtxViewer";
+import WebGPUExample from "./webgpu/WebGPUExample";
+import WebGPUGalaxyExample from "./webgpu/WebGPUGalaxyExample";
+import WebGPUDrawCallComparisonExample from "./webgpu/WebGPUDrawCallComparisonExample";
 
 function App() {
   const [current, setCurrent] = useState<ExampleId | null>(null);
@@ -71,6 +74,9 @@ function App() {
         {current === "3dtiles" && <TilesViewer />}
         {current === "cesium" && <CesiumViewer />}
         {current === "ktx2" && <KtxViewer />}
+        {current === "webgpu" && <WebGPUExample />}
+        {current === "webgpu-galaxy" && <WebGPUGalaxyExample />}
+        {current === "webgpu-draw-calls" && <WebGPUDrawCallComparisonExample />}
         {current === "camera-controls" && (
           <div
             style={{
