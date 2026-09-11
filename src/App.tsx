@@ -23,6 +23,9 @@ import WebGPUExample from "./webgpu/WebGPUExample";
 import WebGPUGalaxyExample from "./webgpu/WebGPUGalaxyExample";
 import WebGPUDrawCallComparisonExample from "./webgpu/WebGPUDrawCallComparisonExample";
 
+import Compare from "./compare/Compare";
+import SmokePreview from "./smoke/SmokePreview";
+
 function App() {
   const [current, setCurrent] = useState<ExampleId | null>(null);
 
@@ -77,6 +80,8 @@ function App() {
         {current === "webgpu" && <WebGPUExample />}
         {current === "webgpu-galaxy" && <WebGPUGalaxyExample />}
         {current === "webgpu-draw-calls" && <WebGPUDrawCallComparisonExample />}
+        {current === "compare" && <Compare />}
+        {current === "smoke" && <SmokePreview />}
         {current === "camera-controls" && (
           <div
             style={{

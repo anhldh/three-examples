@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 export type ExampleId =
+  | "compare"
   | "model"
   | "ply"
   | "lod"
@@ -23,7 +24,8 @@ export type ExampleId =
   | "ktx2"
   | "webgpu"
   | "webgpu-galaxy"
-  | "webgpu-draw-calls";
+  | "webgpu-draw-calls"
+  | "smoke";
 
 interface Example {
   id: ExampleId;
@@ -198,6 +200,27 @@ const EXAMPLES: Example[] = [
     description: "Demo camera-controls",
     tags: ["three.js", "camera-controls", "demo"],
     // image: "/example-thumbnail/14.jpg",
+  },
+  {
+    id: "smoke",
+    title: "shader / smoke",
+    description: "Hiển thị hiệu ứng khói",
+    tags: ["three.js", "shader", "smoke"],
+    // image: "/example-thumbnail/15.jpg",
+  },
+  {
+    id: "compare",
+    title: "compare / webgl vs webgpu",
+    description: "So sánh hiệu năng WebGL và WebGPU",
+    tags: ["three.js", "webgl", "webgpu", "compare"],
+    // image: "/example-thumbnail/16.jpg",
+  },
+  {
+    id: "smoke",
+    title: "shader / smoke",
+    description: "Hiển thị hiệu ứng khói",
+    tags: ["three.js", "shader", "smoke"],
+    // image: '/example-thumbnail/15.jpg',
   },
 ];
 
