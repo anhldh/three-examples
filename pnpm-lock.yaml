@@ -48,8 +48,8 @@ importers:
         specifier: ^6.39.0
         version: 6.39.3(three@0.185.1)
       r3f-monitor:
-        specifier: ^3.0.0
-        version: 3.0.0(@react-three/fiber@9.7.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.1))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.1)
+        specifier: ^3.1.0
+        version: 3.1.0(@react-three/fiber@9.7.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.1))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.1)
       react:
         specifier: ^19.2.4
         version: 19.2.7
@@ -1685,8 +1685,8 @@ packages:
   quickselect@3.0.0:
     resolution: {integrity: sha512-XdjUArbK4Bm5fLLvlm5KpTFOiOThgfWWI4axAZDWg4E/0mKdZyI9tNEfds27qCi1ze/vwTR16kvmmGhRra3c2g==}
 
-  r3f-monitor@3.0.0:
-    resolution: {integrity: sha512-2QSUgsUYKUnW0ajoajfi1ZywakOXnxpxk84fY0Rs/9YUD5V+bQY0Iy27OFZsmHugEDJ8el2lkYzsx7hJsnfqbA==}
+  r3f-monitor@3.1.0:
+    resolution: {integrity: sha512-r7en/jzdxtxhFf5Y4kNEmoQoaTkP0hwHmL19PzbgkDkl7UX0enjlN+U4o230Kq2w+h3+kIFU1/Vc42GX0I1D7A==}
     peerDependencies:
       '@react-three/fiber': '>=8'
       react: '>=18'
@@ -3550,7 +3550,7 @@ snapshots:
 
   quickselect@3.0.0: {}
 
-  r3f-monitor@3.0.0(@react-three/fiber@9.7.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.1))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.1):
+  r3f-monitor@3.1.0(@react-three/fiber@9.7.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.1))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.1):
     dependencies:
       '@react-three/fiber': 9.7.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.185.1)
       react: 19.2.7
